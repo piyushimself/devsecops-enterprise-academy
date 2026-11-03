@@ -1,0 +1,2382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevSecOps Enterprise Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<noscript><style>.card{display:block!important;height:auto!important}.deck{height:auto!important}</style></noscript>
+<style>
+:root{
+  --bg:#0a1424; --surface:#0f1d33; --surface2:#142640; --line:#223552;
+  --text:#d5e1ee; --muted:#93a9c2; --teal:#2fd0b5; --teal-dim:#1c8f7d; --code:#8de6d6;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.65;
+  -webkit-text-size-adjust:100%;overflow:hidden}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:3px}
+
+.deck{height:100vh;height:100dvh;display:grid;grid-template-rows:auto 1fr auto;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;border-bottom:1px solid var(--line);background:var(--surface)}
+.menu{font-family:var(--mono);font-size:.82rem;color:var(--text);background:var(--surface2);border:1px solid var(--line);
+  border-radius:6px;padding:.4rem .7rem;cursor:pointer;flex:none}
+.menu:hover{border-color:var(--teal-dim)}
+.where{min-width:0;flex:1}
+.where b{display:block;font-family:var(--mono);font-size:.8rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.where span{display:block;font-size:.76rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.total{font-family:var(--mono);font-size:.75rem;color:var(--muted);flex:none}
+.meter{height:3px;background:var(--line)}
+.meter i{display:block;height:100%;width:0;background:var(--teal)}
+
+/* stage and cards */
+.stage{min-height:0;display:flex;justify-content:center;padding:1rem}
+.card{display:none;width:100%;max-width:880px;height:100%;overflow-y:auto;background:var(--surface);
+  border:1px solid var(--line);border-radius:12px;padding:1.6rem clamp(1.1rem,4vw,2.4rem) 2rem;
+  overscroll-behavior:contain}
+.card.on{display:block}
+.card h1,.card h2,.card h3{font-family:var(--mono);line-height:1.3;font-weight:700;color:#fff}
+.card>:first-child{margin-top:0}
+.card>h1:first-child{font-size:2.1rem}
+.card>h2:first-child{font-size:1.55rem}
+.card>h3:first-child{font-size:1.35rem}
+.card h3{font-size:1.05rem;color:var(--teal);margin:1.8rem 0 .5rem}
+.card h2{margin:1.8rem 0 .8rem;font-size:1.3rem}
+.card p{margin:0 0 1rem}
+.card ul,.card ol{padding-left:1.35rem;margin:0 0 1.1rem}
+.card li{margin:.35rem 0}
+.card strong{color:#fff;font-weight:600}
+.card em{color:#c3d4e6}
+.card a{color:var(--teal)}
+.card blockquote{margin:1.3rem 0;padding:.85rem 1.1rem;background:var(--surface2);border-left:3px solid var(--teal);border-radius:0 6px 6px 0}
+.card blockquote p{margin:0}
+.card code{font-family:var(--mono);font-size:.86em;background:var(--surface2);color:var(--code);padding:.1em .35em;border-radius:4px}
+.card pre{position:relative;background:#081120;border:1px solid var(--line);border-radius:8px;padding:1rem 1.1rem;overflow-x:auto;margin:1.2rem 0;line-height:1.55}
+.card pre code{background:none;padding:0;color:#cfe3f5;font-size:.8rem}
+.copy{position:absolute;top:.45rem;right:.45rem;font-family:var(--mono);font-size:.7rem;color:var(--muted);background:var(--surface2);
+  border:1px solid var(--line);border-radius:4px;padding:.2rem .5rem;cursor:pointer}
+.tw{overflow-x:auto;margin:1.2rem 0;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:.88rem;line-height:1.5}
+th{font-family:var(--mono);font-size:.76rem;font-weight:500;color:var(--muted);text-align:left;padding:.6rem .75rem;border-bottom:2px solid var(--teal-dim);white-space:nowrap}
+td{padding:.6rem .75rem;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{color:#fff}
+
+/* footer controls */
+.foot{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;align-items:center;padding:.7rem 1rem;border-top:1px solid var(--line);background:var(--surface)}
+.btn{font-family:var(--sans);font-size:.95rem;font-weight:500;color:var(--text);background:var(--surface2);border:1px solid var(--line);
+  border-radius:8px;padding:.7rem 1rem;cursor:pointer;min-height:44px}
+.btn:hover:not(:disabled){border-color:var(--teal-dim)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.next{background:var(--teal);border-color:var(--teal);color:#05221d;font-weight:600}
+.btn.next:hover:not(:disabled){background:#4be0c8}
+.btn.prev{justify-self:start}
+.btn.next{justify-self:end}
+.count{font-family:var(--mono);font-size:.78rem;color:var(--muted);text-align:center;white-space:nowrap}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(3,8,16,.6);display:none;z-index:20}
+.scrim.on{display:block}
+.drawer{position:fixed;top:0;bottom:0;left:0;width:min(340px,88vw);background:var(--surface);border-right:1px solid var(--line);
+  transform:translateX(-102%);transition:transform .18s ease;z-index:21;overflow-y:auto;padding:1rem 1rem 2rem;
+  padding-top:calc(1rem + env(safe-area-inset-top,0px))}
+.drawer.on{transform:none}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+.drawer h2{font-family:var(--mono);font-size:.95rem;margin:0 0 .5rem;color:#fff}
+.close{float:right;font-family:var(--mono);font-size:.8rem;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:6px;padding:.3rem .6rem;cursor:pointer}
+.prog{font-family:var(--mono);font-size:.75rem;color:var(--muted);margin:.25rem 0 1rem}
+.prog .bar{display:block;height:4px;background:var(--line);border-radius:2px;margin-top:.35rem;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--teal)}
+.grp{font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--teal);margin:1.1rem 0 .35rem}
+.navrow{display:flex;gap:.5rem;align-items:flex-start;padding:.35rem .45rem;border-left:2px solid transparent;font-size:.88rem;line-height:1.35;margin:0}
+.navrow input{margin-top:.2rem;accent-color:var(--teal);flex:none}
+.navrow a{color:var(--muted);text-decoration:none;flex:1}
+.navrow a:hover{color:var(--text)}
+.navrow.active{border-left-color:var(--teal);background:var(--surface2)}
+.navrow.active a{color:#fff}
+.navrow.plain{padding-left:1.8rem}
+
+@media (max-width:700px){
+  body{font-size:16.5px}
+  .stage{padding:0}
+  .card{border-radius:0;border-left:0;border-right:0;max-width:none}
+  .card>h1:first-child{font-size:1.7rem}
+  .card>h2:first-child{font-size:1.35rem}
+  .card>h3:first-child{font-size:1.2rem}
+  .total{display:none}
+  .btn{padding:.7rem .85rem}
+}
+</style>
+</head>
+<body>
+<div class="deck">
+  <header>
+    <div class="top">
+      <button class="menu" id="menubtn" type="button" aria-controls="drawer" aria-expanded="false">Contents</button>
+      <div class="where"><b id="wtitle"></b><span id="wpart"></span></div>
+      <div class="total" id="total"></div>
+    </div>
+    <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+  </header>
+  <div class="stage" id="stage">
+<section class="card" data-i="0" data-part="cover" data-plabel="Welcome" data-title="DevSecOps Enterprise Academy">
+<h1 id="devsecops-enterprise-academy">DevSecOps Enterprise Academy</h1>
+<p><em>A beginner-friendly field guide to how a very large company builds, ships and protects software. Prepared for Piyush. Reader level: first-year B.Tech student. Numbers and company names are illustrative, to show the shape of real life.</em></p>
+
+
+</section>
+<section class="card" data-i="1" data-part="part-1-the-big-picture-a-company-is-a-city" data-plabel="Part 1. The Big Picture: A Company Is a City" data-title="Part 1. The Big Picture: A Company Is a City">
+<h2 id="part-1-the-big-picture-a-company-is-a-city">Part 1. The Big Picture: A Company Is a City</h2>
+<p>Forget software for a moment. Picture a huge city such as Mumbai.</p>
+<ul>
+<li><strong>Layer 1 (websites and apps)</strong> = the shopfronts, signboards and showrooms. What visitors see and touch.</li>
+<li><strong>Layer 2 (backend services)</strong> = the kitchens, workshops and delivery desks behind the shop. Where the real work happens.</li>
+<li><strong>Layer 3 (business systems and databases)</strong> = the municipal record office and the giant warehouses. Where the official records live: customers, orders, salaries, stock.</li>
+<li><strong>Layer 4 (infrastructure)</strong> = land, roads, electricity, water and buildings. Where everything physically sits and runs.</li>
+</ul>
+<p>Security is the police, locks, CCTV and building inspectors. <strong>DevSecOps</strong> simply means: the building inspector walks around <em>while the building is being constructed</em>, not after it is finished and full of people. Cheaper, faster, safer.</p>
+<blockquote>
+<p>One sentence to remember: <strong>Dev</strong> (build it) + <strong>Sec</strong> (protect it) + <strong>Ops</strong> (run it) = one team, one automated conveyor belt, checks at every step.</p>
+</blockquote>
+
+
+</section>
+<section class="card" data-i="2" data-part="part-2-the-four-layers-deeper" data-plabel="Part 2. The Four Layers, Deeper" data-title="Part 2. The Four Layers, Deeper">
+<h2 id="part-2-the-four-layers-deeper">Part 2. The Four Layers, Deeper</h2>
+
+<h3 id="layer-1-websites-and-user-interfaces">Layer 1: Websites and user interfaces</h3>
+<p><strong>Analogy:</strong> the shop window and the billing counter.</p>
+<p><strong>What lives here:</strong> the public brand website, the mobile app, the customer portal, the internal HR portal, the admin dashboard.</p>
+<p><strong>Built with:</strong> HTML/CSS/JavaScript, React, Angular, Android (Kotlin), iOS (Swift). Developers write this in VS Code, Android Studio or Xcode.</p>
+<p><strong>Who uses it:</strong> customers (external) and employees (internal).</p>
+<p><strong>What goes wrong:</strong> cross-site scripting (XSS), insecure login pages, secrets accidentally left in JavaScript, tampered third-party scripts.</p>
+
+<h3 id="layer-2-backend-applications-and-microservices">Layer 2: Backend applications and microservices</h3>
+<p><strong>Analogy:</strong> a food court kitchen. Instead of one giant kitchen doing everything, there are small specialised stalls: one makes only dosa, one only juice, one only billing. Each stall is a <strong>microservice</strong>. They pass orders to each other through the counter (an <strong>API</strong>).</p>
+<p><strong>Examples:</strong> Product API (what can be sold), Order Service (placing the order), Payment Service, Authentication Service (who are you?).</p>
+<p><strong>Built with:</strong> Java, Python, Go, Node.js, .NET. Developers use IntelliJ, PyCharm, Visual Studio, VS Code.</p>
+<p><strong>What goes wrong:</strong> broken access control (a customer reading another customer's order), SQL injection, vulnerable libraries, services trusting each other too much.</p>
+
+</section>
+<section class="card" data-i="3" data-part="part-2-the-four-layers-deeper" data-plabel="Part 2. The Four Layers, Deeper" data-title="Layer 3: Enterprise business systems and databases">
+<h3 id="layer-3-enterprise-business-systems-and-databases">Layer 3: Enterprise business systems and databases</h3>
+<p><strong>Analogy:</strong> the government record office plus the central warehouse. Slow to change, extremely important, heavily guarded.</p>
+<p><strong>Examples:</strong> SAP (finance, stock, procurement), Oracle/PostgreSQL/MySQL databases, CRM (customer records, e.g. Salesforce), HR systems (salaries, leave), data warehouses.</p>
+<p><strong>Why they matter:</strong> if a shopfront is defaced, it is embarrassing. If this layer is stolen or corrupted, the company can stop operating. This is where the crown jewels sit.</p>
+<p><strong>What goes wrong:</strong> over-privileged accounts, unpatched databases, publicly exposed database ports, no encryption, no backups.</p>
+
+<h3 id="layer-4-infrastructure">Layer 4: Infrastructure</h3>
+<p><strong>Analogy:</strong> land, buildings, electricity and roads. You can own land (your own data centre) or rent it (cloud).</p>
+<p><strong>Examples:</strong> AWS (EC2 servers, ECS containers, S3 storage), GCP (GKE Kubernetes, Cloud Storage, Vertex AI), Alibaba Cloud (ACK, OSS), networking (VPCs, firewalls, load balancers), Kubernetes.</p>
+<p><strong>What goes wrong:</strong> public storage buckets, open firewall rules, over-powerful cloud roles, unpatched servers, leaked cloud keys.</p>
+
+</section>
+<section class="card" data-i="4" data-part="part-2-the-four-layers-deeper" data-plabel="Part 2. The Four Layers, Deeper" data-title="One click, all four layers">
+<h3 id="one-click-all-four-layers">One click, all four layers</h3>
+<p>A customer taps <strong>Buy Now</strong>:</p>
+<ol>
+<li><strong>Layer 1:</strong> the app sends the request.</li>
+<li><strong>Layer 2:</strong> the Authentication Service checks the login, the Order Service creates an order, the Payment Service charges the card.</li>
+<li><strong>Layer 3:</strong> the order is written into the database; SAP is told to reduce stock and raise an invoice.</li>
+<li><strong>Layer 4:</strong> every step above ran on servers or containers in a cloud, connected by networks.</li>
+</ol>
+<p>A weakness in <em>any</em> layer can break the whole chain. That is why security cannot be one team at the end.</p>
+
+
+</section>
+<section class="card" data-i="5" data-part="part-3-how-a-very-large-organisation-really-looks" data-plabel="Part 3. How a Very Large Organisation Really Looks" data-title="Part 3. How a Very Large Organisation Really Looks">
+<h2 id="part-3-how-a-very-large-organisation-really-looks">Part 3. How a Very Large Organisation Really Looks</h2>
+<p>A small project has one repo and one server. A very large organisation looks more like this (illustrative):</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Thing</th>
+<th>Typical size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Engineers</td>
+<td>5,000 to 30,000</td>
+</tr>
+<tr>
+<td>GitHub organisations</td>
+<td>5 to 40</td>
+</tr>
+<tr>
+<td>Repositories</td>
+<td>3,000 to 50,000</td>
+</tr>
+<tr>
+<td>Microservices</td>
+<td>hundreds to thousands</td>
+</tr>
+<tr>
+<td>Cloud accounts/projects</td>
+<td>hundreds (one per team per environment)</td>
+</tr>
+<tr>
+<td>Clouds</td>
+<td>often 2 or 3 (AWS + GCP + Alibaba Cloud)</td>
+</tr>
+<tr>
+<td>Kubernetes clusters</td>
+<td>dozens</td>
+</tr>
+</tbody>
+</table></div>
+<p>Nobody can hold this in their head. So large companies depend on <strong>automation, standard rules and clear ownership</strong>. Security people cannot read every line of code; they build guardrails that check everything automatically.</p>
+
+<h3 id="31-github-structure-the-company-library">3.1 GitHub structure: the company library</h3>
+<p>Think of GitHub as a giant library. An <strong>Enterprise account</strong> is the whole library building. An <strong>Organisation</strong> is a floor. A <strong>repository (repo)</strong> is one bookshelf. <strong>Teams</strong> decide who may borrow or edit what.</p>
+<p>Example for a fictional company, <em>Acme Retail</em>:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Organisation</th>
+<th>What lives here</th>
+<th>Strictness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>acme-retail-apps</td>
+<td>Production code for shop, orders, payments</td>
+<td>Very high</td>
+</tr>
+<tr>
+<td>acme-platform</td>
+<td>Shared infrastructure: Terraform, Helm charts, pipeline templates</td>
+<td>Very high</td>
+</tr>
+<tr>
+<td>acme-data-ml</td>
+<td>Data pipelines, ML models, Vertex AI notebooks</td>
+<td>High</td>
+</tr>
+<tr>
+<td>acme-erp-integrations</td>
+<td>Connectors to SAP, CRM, HR</td>
+<td>High</td>
+</tr>
+<tr>
+<td>acme-security</td>
+<td>Security tools, custom scanner rules, detection code</td>
+<td>Very high</td>
+</tr>
+<tr>
+<td>acme-sandbox</td>
+<td>Experiments, hackathons, learning, proofs of concept</td>
+<td>Low, but isolated</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why so many organisations instead of one?</strong></p>
+<ul>
+<li><strong>Access separation:</strong> a marketing web developer should not even see payment code.</li>
+<li><strong>Compliance:</strong> auditors can inspect one organisation without touching the others.</li>
+<li><strong>Acquisitions:</strong> when a company buys another, the new company arrives with its own organisation.</li>
+<li><strong>Blast radius:</strong> if one organisation is compromised, the others are not automatically exposed.</li>
+</ul>
+<p><strong>Rules the security team enforces on important repos:</strong></p>
+<ul>
+<li>Direct pushes to the main branch are blocked; every change needs a <strong>pull request (PR)</strong>.</li>
+<li>At least one or two reviewers must approve; <strong>CODEOWNERS</strong> forces the right experts to review the right folders.</li>
+<li>Required checks (secret scan, code scan, dependency scan) must pass before merge.</li>
+<li>Single sign-on (SSO) and mandatory MFA.</li>
+<li>Secret scanning with push protection turned on.</li>
+</ul>
+
+</section>
+<section class="card" data-i="6" data-part="part-3-how-a-very-large-organisation-really-looks" data-plabel="Part 3. How a Very Large Organisation Really Looks" data-title="3.2 The Sandbox organisation">
+<h3 id="32-the-sandbox-organisation">3.2 The Sandbox organisation</h3>
+<p><strong>Analogy:</strong> a school science lab. You may mix chemicals, make a mess, explode a balloon. But the lab has thick walls, no connection to the main building's gas line, and nothing leaves without a teacher checking it.</p>
+<p>Sandbox rules in a well-run company:</p>
+<ul>
+<li>No production secrets, no production data, ever.</li>
+<li>Cannot reach production networks or production cloud accounts.</li>
+<li>Repos may auto-expire or be archived after some months.</li>
+<li>Code can only reach production by being <strong>re-submitted into a real organisation</strong> through the normal PR and review path. No copy-paste shortcuts.</li>
+<li>Even here, basic secret scanning stays on, because people paste real keys into experiments more often than you would believe.</li>
+</ul>
+
+<h3 id="33-environments-dev-qa-staging-prod">3.3 Environments: Dev, QA, Staging, Prod</h3>
+<p><strong>Analogy:</strong> a wedding catering company. Dev is the chef experimenting in the home kitchen. QA is the tasting session with the family. Staging is the full dress rehearsal in the real hall. Prod is the actual wedding with guests.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>Purpose</th>
+<th>Data</th>
+<th>Who can access</th>
+<th>How strict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dev</strong></td>
+<td>Developers try and break things</td>
+<td>Fake or tiny sample data</td>
+<td>All developers</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>QA / Test</strong></td>
+<td>Testers verify features, run automated tests</td>
+<td>Fake, realistic-looking data</td>
+<td>QA team, some developers</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><strong>Staging / Pre-prod</strong></td>
+<td>Final rehearsal, copy of prod setup</td>
+<td>Masked or synthetic data</td>
+<td>Small release team</td>
+<td>High</td>
+</tr>
+<tr>
+<td><strong>Prod</strong></td>
+<td>Real customers, real money</td>
+<td>Real data</td>
+<td>Very few humans; mostly automation</td>
+<td>Very high</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Golden rules:</strong></p>
+<ol>
+<li>Code moves <strong>only forward</strong>: Dev, then QA, then Staging, then Prod. Never edit production directly.</li>
+<li>The <strong>same container image</strong> that passed QA is the one promoted to Prod. You do not rebuild; you promote. (Same sealed lunchbox, not a freshly cooked one.)</li>
+<li>Each environment has its <strong>own cloud account or project, own Kubernetes cluster or namespace, own secrets</strong>. A leaked Dev key must be useless against Prod.</li>
+<li>Real customer data never goes below Prod, unless masked.</li>
+</ol>
+
+</section>
+<section class="card" data-i="7" data-part="part-3-how-a-very-large-organisation-really-looks" data-plabel="Part 3. How a Very Large Organisation Really Looks" data-title="3.4 Why multiple clouds (AWS, GCP, AliCloud)?">
+<h3 id="34-why-multiple-clouds-aws-gcp-alicloud">3.4 Why multiple clouds (AWS, GCP, AliCloud)?</h3>
+<p>Companies rarely choose just one:</p>
+<ul>
+<li><strong>History:</strong> one team started on AWS, another on GCP, an acquired company used something else.</li>
+<li><strong>Strengths:</strong> some teams choose GCP for data/AI (BigQuery, Vertex AI), others AWS for breadth of services.</li>
+<li><strong>Geography and law:</strong> to serve customers in mainland China, a company typically needs to run there, and Alibaba Cloud is a major local provider. Data-residency laws also shape where data may sit.</li>
+<li><strong>Resilience and negotiating power:</strong> not depending on a single vendor.</li>
+</ul>
+<p>The security consequence: three clouds means three sets of settings, roles and logs to protect. That is exactly why a tool that looks across all of them (see WIZ below) is valuable.</p>
+
+
+</section>
+<section class="card" data-i="8" data-part="part-4-where-every-tool-sits-the-placement-map" data-plabel="Part 4. Where Every Tool Sits (The Placement Map)" data-title="Part 4. Where Every Tool Sits (The Placement Map)">
+<h2 id="part-4-where-every-tool-sits-the-placement-map">Part 4. Where Every Tool Sits (The Placement Map)</h2>
+<p>The simplest way to place a tool: ask <strong>Where does it run, and what job does it do?</strong></p>
+
+<h3 id="41-the-developers-desk-ides">4.1 The developer's desk: IDEs</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Analogy</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VS Code</strong></td>
+<td>A light, customisable workbench</td>
+<td>Web, scripts, YAML, Terraform, almost any language</td>
+</tr>
+<tr>
+<td><strong>Visual Studio</strong></td>
+<td>A big professional workshop</td>
+<td>.NET, C#, C++, Windows applications</td>
+</tr>
+<tr>
+<td><strong>PyCharm</strong></td>
+<td>A workshop built for one trade</td>
+<td>Python, Django/Flask, data science</td>
+</tr>
+</tbody>
+</table></div>
+<p>They run <strong>on the developer's laptop</strong> (or a cloud workspace). Security helpers here are plug-ins such as SonarLint, Snyk or Semgrep extensions, and secret-detection hooks. They are <strong>advice, not enforcement</strong>: a developer can switch the plug-in off.</p>
+<blockquote>
+<p><strong>Key insight:</strong> enforcement never lives on the laptop. It lives at GitHub and in the pipeline, like airport security. You cannot rely on passengers promising they have no knives.</p>
+</blockquote>
+
+<h3 id="42-the-full-tool-placement-table">4.2 The full tool placement table</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Tool(s)</th>
+<th>Analogy</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Write</td>
+<td>VS Code, PyCharm, Visual Studio</td>
+<td>Workbench</td>
+<td>Developer writes code</td>
+</tr>
+<tr>
+<td>Track</td>
+<td>Git (local), GitHub (central)</td>
+<td>Personal notebook vs library</td>
+<td>Versions, history, collaboration, reviews</td>
+</tr>
+<tr>
+<td>Automate</td>
+<td>GitHub Actions, Jenkins, Cloud Build</td>
+<td>Factory conveyor belt</td>
+<td>Builds, tests and ships code automatically</td>
+</tr>
+<tr>
+<td>Scan code</td>
+<td>CodeQL / GHAS, SonarQube, Semgrep, Checkmarx (SAST)</td>
+<td>A proofreader reading your essay for dangerous mistakes</td>
+<td>Finds flaws in your own source code</td>
+</tr>
+<tr>
+<td>Scan ingredients</td>
+<td>Dependabot, Snyk, Trivy (SCA)</td>
+<td>Reading the ingredients label on packaged food</td>
+<td>Finds known-vulnerable libraries you imported</td>
+</tr>
+<tr>
+<td>Scan secrets</td>
+<td>Gitleaks, GitHub secret scanning</td>
+<td>Metal detector at the door</td>
+<td>Finds passwords and keys in code</td>
+</tr>
+<tr>
+<td>Scan blueprints</td>
+<td>Checkov, tfsec, WIZ Code (IaC scanning)</td>
+<td>Architect reviewing a building plan</td>
+<td>Finds insecure Terraform/Kubernetes files before anything is built</td>
+</tr>
+<tr>
+<td>Scan containers</td>
+<td>Trivy, Grype, WIZ</td>
+<td>Inspecting a sealed shipping container</td>
+<td>Finds weak packages inside images</td>
+</tr>
+<tr>
+<td>Store</td>
+<td>Artifact Registry (GCP), ECR (AWS), ACR (Alibaba)</td>
+<td>Warehouse of sealed, labelled boxes</td>
+<td>Holds container images, only approved ones</td>
+</tr>
+<tr>
+<td>Define infrastructure</td>
+<td>Terraform, Helm, Kubernetes YAML (IaC)</td>
+<td>Blueprints</td>
+<td>Describes servers, networks and apps as code</td>
+</tr>
+<tr>
+<td>Run</td>
+<td>Kubernetes: GKE (GCP), EKS (AWS), ACK (Alibaba)</td>
+<td>A port manager</td>
+<td>Decides where each container runs, restarts failures, scales up</td>
+</tr>
+<tr>
+<td>Host</td>
+<td>AWS, GCP, Alibaba Cloud</td>
+<td>The landlords</td>
+<td>Rent out the land (compute, storage, network)</td>
+</tr>
+<tr>
+<td>Guard the door</td>
+<td>OPA Gatekeeper, Kyverno (admission control)</td>
+<td>A bouncer at the cluster entrance</td>
+<td>Rejects deployments that break policy</td>
+</tr>
+<tr>
+<td>Test running app</td>
+<td>OWASP ZAP, Burp Suite (DAST)</td>
+<td>Ethical burglar trying the real doors</td>
+<td>Attacks the running QA app</td>
+</tr>
+<tr>
+<td>Watch the whole estate</td>
+<td><strong>WIZ</strong></td>
+<td>Drone plus inspector</td>
+<td>See below</td>
+</tr>
+<tr>
+<td>Watch live behaviour</td>
+<td>Falco, cloud logs, SIEM (Chronicle, Splunk)</td>
+<td>CCTV control room</td>
+<td>Detects suspicious activity</td>
+</tr>
+<tr>
+<td>Keep secrets</td>
+<td>Secret Manager, AWS Secrets Manager, HashiCorp Vault</td>
+<td>Bank locker</td>
+<td>Passwords live here, not in code</td>
+</tr>
+<tr>
+<td>Track work</td>
+<td>Jira, ServiceNow</td>
+<td>Complaints register</td>
+<td>Assigns and tracks fixes</td>
+</tr>
+</tbody>
+</table></div>
+
+</section>
+<section class="card" data-i="9" data-part="part-4-where-every-tool-sits-the-placement-map" data-plabel="Part 4. Where Every Tool Sits (The Placement Map)" data-title="4.3 Where WIZ fits">
+<h3 id="43-where-wiz-fits">4.3 Where WIZ fits</h3>
+<p>WIZ is a cloud security platform. Imagine a drone that flies over your entire cloud city, across AWS, GCP and Alibaba Cloud, <strong>without you installing anything inside each building</strong> (this is called <em>agentless</em> scanning). It reads the configuration and looks inside workloads to build a <strong>map</strong> of everything: servers, containers, databases, identities, network paths.</p>
+<p>Its special skill is <strong>connecting the dots</strong>. One small problem alone is low risk. But a <em>toxic combination</em> is dangerous: for example, a server that is <strong>publicly reachable</strong> + has a <strong>known critical vulnerability</strong> + holds an <strong>over-powerful cloud role</strong> that can reach a <strong>database with customer data</strong>. WIZ highlights that chain so the team fixes what is truly urgent first, rather than drowning in 10,000 low-priority alerts.</p>
+<p>Placed in our map, WIZ works at <strong>two ends</strong>:</p>
+<ul>
+<li><strong>Left side (before deploy):</strong> WIZ Code scans source repos, Terraform and container images in the pipeline, and can block risky changes.</li>
+<li><strong>Right side (after deploy):</strong> WIZ looks at what is <em>actually running</em> in GKE, EC2 or ACK and tells you what is exposed right now.</li>
+</ul>
+<p>When both ends are linked, you can trace a risk in production <strong>back to the exact repo and team that created it</strong>, and fix it at the source. That is the heart of DevSecOps.</p>
+
+
+</section>
+<section class="card" data-i="10" data-part="part-5-the-life-of-one-code-change" data-plabel="Part 5. The Life of One Code Change" data-title="Part 5. The Life of One Code Change">
+<h2 id="part-5-the-life-of-one-code-change">Part 5. The Life of One Code Change</h2>
+<p>Meet Ravi, a developer at Acme Retail. He must add a discount field to the Order Service.</p>
+<ol>
+<li><strong>Ticket.</strong> A Jira ticket arrives. If the change touches payments or login, a short <strong>threat-modelling</strong> chat happens first: what could an attacker do with this?</li>
+<li><strong>Laptop.</strong> Ravi opens PyCharm (or VS Code), creates a branch from the <code>acme-retail-apps/order-service</code> repo, and writes code. SonarLint underlines a risky line; he fixes it.</li>
+<li><strong>Pre-commit.</strong> A local hook blocks the commit because he pasted a test API key. Saved by a metal detector.</li>
+<li><strong>Pull request.</strong> He pushes the branch and opens a PR. The main branch is protected, so merging is not yet possible.</li>
+<li><strong>Automatic checks.</strong> GitHub Actions starts: secret scan, CodeQL, dependency scan, unit tests. One dependency has a critical vulnerability. The PR is blocked with a clear message.</li>
+<li><strong>Fix and review.</strong> Ravi upgrades the library. A teammate and a CODEOWNER review and approve.</li>
+<li><strong>Merge, then build.</strong> The pipeline builds a container image, scans it, generates an <strong>SBOM</strong> (a parts list), and digitally <strong>signs</strong> the image so nobody can swap it later.</li>
+<li><strong>Dev deploy.</strong> The image is pushed to the registry and automatically deployed to the Dev cluster.</li>
+<li><strong>QA deploy.</strong> Automated integration tests and a DAST scan run against QA. Testers also check by hand.</li>
+<li><strong>Approval gate.</strong> For Prod, a named approver (release manager) must click approve. Policy checks confirm the image is signed and has no critical findings.</li>
+<li><strong>Prod deploy.</strong> The cluster admission controller verifies the signature again. The image rolls out gradually (a few pods first, then more).</li>
+<li><strong>Watch.</strong> WIZ and monitoring continue to watch the running service. If a new vulnerability is announced next month, WIZ flags it and the owning team is alerted automatically.</li>
+</ol>
+<p>Notice Ravi never logged in to production. <strong>Humans write and approve; machines deploy.</strong></p>
+
+
+</section>
+<section class="card" data-i="11" data-part="part-6-the-devsecops-pipeline-and-its-security-gates" data-plabel="Part 6. The DevSecOps Pipeline and Its Security Gates" data-title="Part 6. The DevSecOps Pipeline and Its Security Gates">
+<h2 id="part-6-the-devsecops-pipeline-and-its-security-gates">Part 6. The DevSecOps Pipeline and Its Security Gates</h2>
+<p><strong>Shift left</strong> means moving security checks earlier (to the left on the timeline). Fixing a bug on your laptop costs minutes; fixing it in production costs days, money and reputation.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Security activity</th>
+<th>Gate decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plan</td>
+<td>Threat modelling, security requirements</td>
+<td>Risky features need review</td>
+</tr>
+<tr>
+<td>Code</td>
+<td>IDE plug-ins, pre-commit secret hooks</td>
+<td>Advice only</td>
+</tr>
+<tr>
+<td>Pull request</td>
+<td>Secret scan, SAST, SCA, IaC scan, peer review</td>
+<td><strong>Block</strong> on secrets and criticals</td>
+</tr>
+<tr>
+<td>Build</td>
+<td>Hardened base image, container scan, SBOM, image signing</td>
+<td><strong>Block</strong> on critical vulnerabilities</td>
+</tr>
+<tr>
+<td>Test (QA)</td>
+<td>DAST, integration tests, API security tests</td>
+<td>Block on high-severity findings</td>
+</tr>
+<tr>
+<td>Release</td>
+<td>Policy check, approval, change record</td>
+<td>Needs named approver</td>
+</tr>
+<tr>
+<td>Deploy</td>
+<td>Admission control: only signed, approved images</td>
+<td><strong>Block</strong> unsigned images</td>
+</tr>
+<tr>
+<td>Operate</td>
+<td>WIZ runtime view, logs, alerting, patching, incident response</td>
+<td>Fix by severity and exposure</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>A sensible gate policy for beginners:</strong></p>
+<ul>
+<li><strong>Critical:</strong> block the merge or deploy.</li>
+<li><strong>High:</strong> block, or allow only with a written exception and an expiry date.</li>
+<li><strong>Medium/Low:</strong> warn and create a ticket with a deadline.</li>
+</ul>
+<p>Strict gates with no exceptions cause developers to find ways around them. Good DevSecOps is <em>strict where it matters, easy everywhere else</em>.</p>
+
+
+</section>
+<section class="card" data-i="12" data-part="part-7-hands-on-lab-build-your-own-secure-automated-deployment-workflow" data-plabel="Part 7. Hands-On Lab: Build Your Own Secure Automated Deployment Workflow" data-title="Part 7. Hands-On Lab: Build Your Own Secure Automated Deployment Workflow">
+<h2 id="part-7-hands-on-lab-build-your-own-secure-automated-deployment-workflow">Part 7. Hands-On Lab: Build Your Own Secure Automated Deployment Workflow</h2>
+<p>You learn this by building a small version of the real thing. Use a free GitHub account, a tiny app (a Python Flask hello-world or similar), and a free local cluster such as kind or minikube. You can later point it at GKE.</p>
+
+<h3 id="lab-architecture">Lab architecture</h3>
+<ul>
+<li>Organisation: <code>my-academy-sandbox</code> (your safe lab)</li>
+<li>Repo: <code>hello-orders</code> (the app, a Dockerfile, a Kubernetes manifest)</li>
+<li>Pipeline: GitHub Actions</li>
+<li>Registry: GitHub Container Registry, or Artifact Registry if you use GCP</li>
+<li>Environments: <code>dev</code>, <code>qa</code>, <code>prod</code> (GitHub Environments, with required reviewers on <code>prod</code>)</li>
+<li>Cluster: three namespaces (<code>dev</code>, <code>qa</code>, <code>prod</code>) on a local cluster</li>
+</ul>
+
+<h3 id="step-by-step-plan">Step-by-step plan</h3>
+<p><strong>Week 1: Foundation.</strong> Create the organisation and repo. Turn on branch protection: PRs required, one reviewer, status checks required. Turn on secret scanning with push protection and Dependabot alerts. Add a CODEOWNERS file.</p>
+<p><strong>Week 2: Scan on every PR.</strong> Add secret scan, CodeQL (SAST) and dependency review. Deliberately commit a fake key and a vulnerable library to watch the gates block you. Breaking it on purpose is the best teacher.</p>
+<p><strong>Week 3: Build safely.</strong> Write a minimal Dockerfile (small base image, non-root user). Build the image in the pipeline, scan it, produce an SBOM, sign it with cosign, push it to the registry.</p>
+<p><strong>Week 4: Deploy with guardrails.</strong> Deploy to <code>dev</code> automatically, <code>qa</code> after tests, <code>prod</code> only after manual approval. Add a policy (Kyverno or Gatekeeper) that rejects unsigned images and containers running as root.</p>
+<p><strong>Week 5: Watch and respond.</strong> Connect your cloud account (if you use one) to WIZ at work or explore a trial. Practise tracing a finding back to the repo. Write a one-page incident runbook.</p>
+
+</section>
+<section class="card" data-i="13" data-part="part-7-hands-on-lab-build-your-own-secure-automated-deployment-workflow" data-plabel="Part 7. Hands-On Lab: Build Your Own Secure Automated Deployment Workflow" data-title="Starter workflow (simplified)">
+<h3 id="starter-workflow-simplified">Starter workflow (simplified)</h3>
+<p>This is a teaching skeleton. In real companies, you <strong>pin every action to a full commit SHA</strong> (not just a version tag), because pipelines themselves are a target for attackers.</p>
+<pre><code class="language-yaml">name: secure-pipeline
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+
+  sast:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: python
+      - uses: github/codeql-action/analyze@v3
+
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+  build-scan-push:
+    needs: [secrets-scan, sast]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t hello-orders:${{ github.sha }} .
+      - name: Scan image (fail on critical)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: hello-orders:${{ github.sha }}
+          severity: CRITICAL
+          exit-code: '1'
+      # next: generate SBOM, sign with cosign, push to registry
+
+  deploy-prod:
+    needs: build-scan-push
+    runs-on: ubuntu-latest
+    environment: prod   # required reviewers set in repo settings
+    steps:
+      - run: echo 'deploy the SAME signed image here'
+</code></pre>
+<p><strong>What each part teaches you:</strong></p>
+<ul>
+<li><code>permissions: contents: read</code> = least privilege for the pipeline itself.</li>
+<li><code>needs:</code> = ordering, the conveyor belt must pass checkpoint A before B.</li>
+<li><code>exit-code: '1'</code> = the gate that actually blocks.</li>
+<li><code>environment: prod</code> = the human approval checkpoint.</li>
+</ul>
+<p><strong>Cloud-authentication tip:</strong> never store long-lived cloud keys as GitHub secrets if you can avoid it. Use short-lived identity federation (OIDC) so the pipeline gets a temporary pass instead of a permanent key.</p>
+
+
+</section>
+<section class="card" data-i="14" data-part="part-8-real-scenarios-how-it-feels-on-the-job" data-plabel="Part 8. Real Scenarios: How It Feels on the Job" data-title="Part 8. Real Scenarios: How It Feels on the Job">
+<h2 id="part-8-real-scenarios-how-it-feels-on-the-job">Part 8. Real Scenarios: How It Feels on the Job</h2>
+
+<h3 id="scenario-1-a-key-is-leaked-in-a-public-repo">Scenario 1: A key is leaked in a public repo</h3>
+<p>A developer commits a cloud access key to a repo that turns out to be public.</p>
+<ol>
+<li><strong>Revoke the key first.</strong> Always before cleaning the repo, because bots find keys in minutes.</li>
+<li>Check cloud logs to see whether it was used.</li>
+<li>Remove it from history, add push protection so it cannot repeat.</li>
+<li>Write a short note on how it happened. No blame, just fix the process.</li>
+</ol>
+
+<h3 id="scenario-2-a-new-critical-vulnerability-is-announced-on-a-friday">Scenario 2: A new critical vulnerability is announced on a Friday</h3>
+<p>The library (think Log4Shell-style) is used in hundreds of repos.</p>
+<ol>
+<li>Ask the question: <strong>where do we use it?</strong> SBOMs and tools like WIZ answer this in minutes instead of weeks.</li>
+<li>Prioritise: which affected services are <strong>internet-facing</strong> and in <strong>Prod</strong>? Those first.</li>
+<li>Open tickets automatically to the owning teams with a deadline.</li>
+<li>Meanwhile, add a temporary protection (e.g. a firewall rule) while patches roll out.</li>
+</ol>
+
+</section>
+<section class="card" data-i="15" data-part="part-8-real-scenarios-how-it-feels-on-the-job" data-plabel="Part 8. Real Scenarios: How It Feels on the Job" data-title="Scenario 3: A public storage bucket in Prod">
+<h3 id="scenario-3-a-public-storage-bucket-in-prod">Scenario 3: A public storage bucket in Prod</h3>
+<p>WIZ raises an alert: a bucket with customer files is public.</p>
+<ol>
+<li>Confirm and close the exposure immediately.</li>
+<li>Find the Terraform in the repo that created it; fix <strong>the code</strong>, not only the bucket, otherwise the next deploy reopens it.</li>
+<li>Add an IaC policy so this mistake fails the pull request in future.</li>
+</ol>
+
+<h3 id="scenario-4-sandbox-code-wants-to-go-live">Scenario 4: Sandbox code wants to go live</h3>
+<p>A hackathon prototype impresses leadership.</p>
+<ul>
+<li>Rule: it cannot simply be copied. It is <strong>re-built in the proper organisation</strong>, through PRs, scans, review, and proper environments.</li>
+<li>Check the prototype for hard-coded secrets and test credentials first.</li>
+</ul>
+
+<h3 id="scenario-5-dev-environment-hacked">Scenario 5: Dev environment hacked</h3>
+<p>Because Dev has separate accounts, separate secrets and fake data, the damage is contained. This is the payoff of environment separation. The lesson is also to treat Dev as <em>less</em> trusted, but not as <em>un</em>protected.</p>
+
+
+</section>
+<section class="card" data-i="16" data-part="part-9-who-does-what" data-plabel="Part 9. Who Does What?" data-title="Part 9. Who Does What?">
+<h2 id="part-9-who-does-what">Part 9. Who Does What?</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Job in one line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Developer</td>
+<td>Writes code, fixes findings in their own repo</td>
+</tr>
+<tr>
+<td>QA engineer</td>
+<td>Tests features, validates fixes</td>
+</tr>
+<tr>
+<td>DevOps / Platform engineer</td>
+<td>Builds and maintains pipelines, clusters, templates</td>
+</tr>
+<tr>
+<td>Cloud engineer</td>
+<td>Manages AWS/GCP/Alibaba accounts and networks</td>
+</tr>
+<tr>
+<td><strong>Application Security (AppSec)</strong></td>
+<td>Sets code-level rules, scanner tuning, reviews, developer training</td>
+</tr>
+<tr>
+<td>Cloud / Infra security</td>
+<td>Cloud posture, WIZ, network and identity controls</td>
+</tr>
+<tr>
+<td>SOC / Incident response</td>
+<td>Watches alerts 24x7, handles attacks</td>
+</tr>
+<tr>
+<td>Release manager</td>
+<td>Approves production changes</td>
+</tr>
+<tr>
+<td>Compliance / Audit</td>
+<td>Checks that rules are followed and provable</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Shared responsibility:</strong> the cloud provider secures the <em>building</em> (physical data centres). You secure <em>what you put inside</em> (configuration, identities, code, data).</p>
+
+
+</section>
+<section class="card" data-i="17" data-part="part-10-common-beginner-mistakes" data-plabel="Part 10. Common Beginner Mistakes" data-title="Part 10. Common Beginner Mistakes">
+<h2 id="part-10-common-beginner-mistakes">Part 10. Common Beginner Mistakes</h2>
+<ul>
+<li>Treating security as a final exam instead of a daily habit.</li>
+<li>Trusting IDE plug-ins as protection; enforcement belongs in GitHub and the pipeline.</li>
+<li>Using one cloud account for everything; Dev and Prod must be separated.</li>
+<li>Rebuilding images per environment instead of promoting the same signed one.</li>
+<li>Giving the pipeline or a service admin rights it does not need.</li>
+<li>Turning on every scanner at maximum strictness on day one; developers then ignore all of them. Start with criticals, then tighten.</li>
+<li>Fixing the running resource but not the code or Terraform that created it.</li>
+</ul>
+
+
+</section>
+<section class="card" data-i="18" data-part="part-11-self-check-questions" data-plabel="Part 11. Self-Check Questions" data-title="Part 11. Self-Check Questions">
+<h2 id="part-11-self-check-questions">Part 11. Self-Check Questions</h2>
+<ol>
+<li>Name the four layers and give one real example of each.</li>
+<li>Why does a big company use many GitHub organisations instead of one?</li>
+<li>What can a Sandbox organisation do, and what must it never do?</li>
+<li>Why is the image <em>promoted</em> from QA to Prod rather than rebuilt?</li>
+<li>Which tools run on the laptop, and why can they not be the main enforcement?</li>
+<li>Explain SAST, SCA, DAST and secret scanning using the analogies above.</li>
+<li>What does WIZ see that a code scanner cannot, and what does a code scanner see that WIZ cannot?</li>
+<li>Walk through Scenario 2 and decide what to fix first and why.</li>
+</ol>
+
+
+</section>
+<section class="card" data-i="19" data-part="glossary" data-plabel="Glossary" data-title="Glossary">
+<h2 id="glossary">Glossary</h2>
+<ul>
+<li><strong>API:</strong> a counter where one program places an order with another.</li>
+<li><strong>CI/CD:</strong> automatic build/test (CI) and automatic delivery (CD).</li>
+<li><strong>Container:</strong> a sealed lunchbox holding an app and everything it needs to run.</li>
+<li><strong>Kubernetes (K8s):</strong> the system that decides which servers run which containers and restarts them when they fail.</li>
+<li><strong>Namespace:</strong> a separate room inside a cluster.</li>
+<li><strong>IaC (Infrastructure as Code):</strong> building infrastructure from written blueprints instead of clicking around.</li>
+<li><strong>SAST / SCA / DAST:</strong> scanning your source / your imported libraries / your running app.</li>
+<li><strong>SBOM:</strong> a parts list for software.</li>
+<li><strong>Least privilege:</strong> give only the access actually needed.</li>
+<li><strong>Blast radius:</strong> how much damage one failure or breach can cause.</li>
+<li><strong>Shift left:</strong> do security checks earlier in the timeline.</li>
+<li><strong>Toxic combination:</strong> several smaller risks that together form a real attack path.</li>
+<li><strong>OIDC federation:</strong> a temporary pass for the pipeline instead of a permanent key.</li>
+</ul>
+
+
+</section>
+<section class="card" data-i="20" data-part="where-to-go-next" data-plabel="Where to Go Next" data-title="Where to Go Next">
+<h2 id="where-to-go-next">Where to Go Next</h2>
+<ol>
+<li>Complete the five-week lab in Part 7 in your sandbox organisation.</li>
+<li>Add a second service and practise promoting between environments.</li>
+<li>Move the lab to GKE and add a Kyverno or Gatekeeper policy.</li>
+<li>Then we can build an interactive HTML quiz, a facilitator version for your team, or a deeper chapter on any layer, cloud, or scanner.</li>
+</ol>
+
+
+</section>
+<section class="card" data-i="21" data-part="deep" data-plabel="Advanced deep dives" data-title="Advanced deep dives">
+<h1 id="advanced-deep-dives">Advanced deep dives</h1>
+<p><em>Parts 1 to 11 gave you the map. Parts 12 onward walk through the real streets: how a production system is actually wired, how cloud accounts are organised, how GitHub is governed at scale, how Kubernetes behaves, how scanners and WIZ are used day to day, and what an incident or a big release feels like.</em></p>
+
+
+</section>
+<section class="card" data-i="22" data-part="part-12-inside-a-real-production-system" data-plabel="Part 12. Inside a Real Production System" data-title="Part 12. Inside a Real Production System">
+<h2 id="part-12-inside-a-real-production-system">Part 12. Inside a Real Production System</h2>
+
+<h3 id="121-the-journey-of-one-request-hop-by-hop">12.1 The journey of one request, hop by hop</h3>
+<p><strong>Analogy:</strong> catching a flight. You travel by road, pass the gate security, check in, wait at the gate, board, and your bags travel separately. Each stop has its own checks. A customer request travels through similar stops:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Hop</th>
+<th>Component</th>
+<th>Airport analogy</th>
+<th>Security job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>DNS</strong></td>
+<td>Looking up the airport address</td>
+<td>Prevent hijacking of the domain name</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>CDN and WAF</strong> (Cloudflare, Cloud Armor, CloudFront, Akamai)</td>
+<td>Outer road checkpoint</td>
+<td>Absorbs attack traffic, blocks common web attacks, rate-limits bots</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Load balancer</strong></td>
+<td>Traffic police sending cars to open lanes</td>
+<td>Terminates HTTPS, hides internal servers</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>API gateway</strong> (Apigee, Kong, AWS API Gateway)</td>
+<td>Check-in desk</td>
+<td>Checks identity token, applies rate limits, validates requests</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Ingress inside Kubernetes</strong></td>
+<td>Terminal entrance</td>
+<td>Routes to the right microservice</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Microservices</strong></td>
+<td>Airline departments</td>
+<td>Business logic, authorisation per action</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Service mesh</strong> (Istio, Linkerd)</td>
+<td>Secure internal corridors</td>
+<td>Encrypts service-to-service traffic (mTLS), says who may call whom</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Message queue</strong> (Kafka, Pub/Sub, SQS)</td>
+<td>Baggage conveyor</td>
+<td>Carries work between services without waiting</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Cache</strong> (Redis)</td>
+<td>Sticky note at the desk</td>
+<td>Speeds up reads; must not hold secrets unprotected</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Database</strong> (PostgreSQL, Cloud SQL, DynamoDB)</td>
+<td>Records vault</td>
+<td>Encrypted, private network only, strict accounts</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>Integration layer</strong> to SAP and CRM</td>
+<td>Diplomatic liaison office</td>
+<td>Controls what leaves and enters the legacy world</td>
+</tr>
+</tbody>
+</table></div>
+<p>One weak hop can undo all the others. A perfect WAF does not help if the Order Service lets any logged-in user ask for any order number (a <em>broken access control</em> flaw, also called IDOR). That is a code problem, which is why AppSec and scanners still matter.</p>
+
+</section>
+<section class="card" data-i="23" data-part="part-12-inside-a-real-production-system" data-plabel="Part 12. Inside a Real Production System" data-title="12.2 Networks: gatehouse, offices and vault">
+<h3 id="122-networks-gatehouse-offices-and-vault">12.2 Networks: gatehouse, offices and vault</h3>
+<p>A <strong>VPC</strong> (Virtual Private Cloud) is your own fenced compound inside a cloud. Inside it you create <strong>subnets</strong>, which are separate zones:</p>
+<ul>
+<li><strong>Public zone (DMZ):</strong> only things that must face the internet, such as load balancers. Think reception hall.</li>
+<li><strong>Private application zone:</strong> your Kubernetes nodes and services. No direct internet access in. Think back offices.</li>
+<li><strong>Data zone:</strong> databases and caches. Reachable only from the application zone. Think the vault.</li>
+</ul>
+<p><strong>Firewall rules</strong> decide who may talk to whom. A good rule is specific (service A to database B on one port). A bad rule is 0.0.0.0/0 (the whole internet) on a database port. WIZ regularly finds exactly this.</p>
+<p><strong>Egress</strong> (traffic going out) matters too. If a hacked container can call any website, it can download attack tools and send your data out. Mature companies force outbound traffic through a <strong>NAT gateway</strong> or proxy with an allow-list.</p>
+<p><strong>Connecting to the old world:</strong> SAP often sits in the company's own data centre. A <strong>VPN</strong> or a dedicated line (Cloud Interconnect, AWS Direct Connect) joins the cloud network to it. Admins reach private machines through a <strong>bastion</strong> or an identity-aware proxy (Google IAP) rather than exposing SSH to the internet.</p>
+
+</section>
+<section class="card" data-i="24" data-part="part-12-inside-a-real-production-system" data-plabel="Part 12. Inside a Real Production System" data-title="12.3 Phone call versus letter: synchronous and asynchronous">
+<h3 id="123-phone-call-versus-letter-synchronous-and-asynchronous">12.3 Phone call versus letter: synchronous and asynchronous</h3>
+<ul>
+<li><strong>Synchronous (phone call):</strong> the Order Service calls the Payment Service and waits for an answer. Simple, but if Payment is down, Order is stuck.</li>
+<li><strong>Asynchronous (letter in a postbox):</strong> the Order Service drops a message into a queue and moves on. Payment picks it up when ready. More resilient, but harder to trace.</li>
+</ul>
+<p><strong>Security view:</strong> queues need their own access control (who may publish or read), messages may carry personal data so they need encryption, and a poisoned message can crash a consumer. These are classic places where testers find surprises.</p>
+
+<h3 id="124-the-legacy-reality-sap-crm-hr-systems">12.4 The legacy reality: SAP, CRM, HR systems</h3>
+<p>Modern teams ship daily. SAP landscapes change slowly and carefully. Real facts about this world:</p>
+<ul>
+<li>SAP has its own <strong>DEV, QAS and PRD</strong> systems and its own promotion mechanism called <strong>transports</strong>. So even the old world has dev, test, prod, only with heavier approval.</li>
+<li>SAP publishes <strong>Security Patch Day</strong> monthly (second Tuesday), and security teams track those notes.</li>
+<li>Integration usually runs through middleware (for example MuleSoft or SAP's own integration suite) using OData APIs, IDocs, RFC calls or nightly batch files.</li>
+<li>The classic dangers: technical accounts with huge authorisations, <strong>segregation-of-duties</strong> violations (the same person can create a vendor and approve payment to it), and old interfaces nobody owns.</li>
+</ul>
+<p>Because modernisation is slow, a DevSecOps engineer must respect both speeds: automated pipelines for microservices, and change tickets with approvals for SAP.</p>
+
+</section>
+<section class="card" data-i="25" data-part="part-12-inside-a-real-production-system" data-plabel="Part 12. Inside a Real Production System" data-title="12.5 Data: where it lives and how it is classified">
+<h3 id="125-data-where-it-lives-and-how-it-is-classified">12.5 Data: where it lives and how it is classified</h3>
+<p>Companies label data by sensitivity so that protection matches value:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Example</th>
+<th>Typical protection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Public</td>
+<td>Product catalogue</td>
+<td>Integrity checks</td>
+</tr>
+<tr>
+<td>Internal</td>
+<td>Meeting notes, internal docs</td>
+<td>Login required</td>
+</tr>
+<tr>
+<td>Confidential</td>
+<td>Customer orders, contracts</td>
+<td>Encryption, restricted roles, audit logs</td>
+</tr>
+<tr>
+<td>Restricted</td>
+<td>Card data, health data, national ID numbers, salaries</td>
+<td>Strong encryption, tokenisation, tiny access list, special compliance rules</td>
+</tr>
+</tbody>
+</table></div>
+<p>Every database should be encrypted <strong>at rest</strong> (on disk) and <strong>in transit</strong> (on the wire), with keys in a key-management service (Cloud KMS, AWS KMS), backed up, and with access logged. Laws such as India's DPDP Act, the EU's GDPR and card-industry PCI DSS turn these good habits into obligations.</p>
+
+<h3 id="126-identity-people-machines-and-pipelines">12.6 Identity: people, machines and pipelines</h3>
+<p>In a large company there are far <strong>more machine identities than human ones</strong>:</p>
+<ul>
+<li><strong>Employees</strong> sign in through a single sign-on provider (Entra ID, Okta, Google Workspace) with MFA.</li>
+<li><strong>Customers</strong> use a customer-identity system (CIAM) with social login, OTPs and so on.</li>
+<li><strong>Workloads</strong> (a pod calling a database) use service accounts or workload identities.</li>
+<li><strong>Pipelines</strong> use short-lived tokens issued through OIDC.</li>
+</ul>
+<p>The golden habit: <strong>no long-lived passwords or keys anywhere if you can avoid it</strong>. Prefer identities that mint temporary credentials. Most real breaches in cloud start with a leaked key or an over-powerful role.</p>
+
+
+</section>
+<section class="card" data-i="26" data-part="part-13-how-cloud-accounts-are-organised-in-real-life" data-plabel="Part 13. How Cloud Accounts Are Organised in Real Life" data-title="Part 13. How Cloud Accounts Are Organised in Real Life">
+<h2 id="part-13-how-cloud-accounts-are-organised-in-real-life">Part 13. How Cloud Accounts Are Organised in Real Life</h2>
+
+<h3 id="131-why-structure-matters">13.1 Why structure matters</h3>
+<p>If all your servers live in one big cloud account, one stolen key can reach everything. So large companies slice the cloud into many small boxes, put rules on the outside of the boxes, and let teams work freely inside their own box. This is the cloud version of <strong>blast radius control</strong>.</p>
+
+<h3 id="132-gcp-organization-folders-projects">13.2 GCP: Organization, Folders, Projects</h3>
+<pre><code>acme.com (Organization)
+ ├─ Folder: shared-services     (logging, networking, security tooling)
+ ├─ Folder: prod
+ │    ├─ Project: orders-prod
+ │    └─ Project: payments-prod
+ ├─ Folder: nonprod
+ │    ├─ Project: orders-dev
+ │    ├─ Project: orders-qa
+ │    └─ Project: payments-qa
+ └─ Folder: sandbox            (low trust, no prod network access)
+</code></pre>
+<ul>
+<li><strong>Organization policies</strong> apply to whole folders: for example, block public IPs on VMs, block service-account key creation, restrict which regions may be used.</li>
+<li><strong>IAM roles</strong> are granted at the lowest sensible level (a project, not the whole organisation).</li>
+<li><strong>GKE</strong> clusters live inside projects. <strong>Workload Identity</strong> lets a pod act as a Google service account without any key file.</li>
+<li><strong>Shared VPC</strong> lets a central network team own the network while app teams own their workloads.</li>
+</ul>
+
+</section>
+<section class="card" data-i="27" data-part="part-13-how-cloud-accounts-are-organised-in-real-life" data-plabel="Part 13. How Cloud Accounts Are Organised in Real Life" data-title="13.3 AWS: Organizations, OUs, Accounts">
+<h3 id="133-aws-organizations-ous-accounts">13.3 AWS: Organizations, OUs, Accounts</h3>
+<p>In AWS the strong boundary is the <strong>account</strong>. A typical pattern is one account per application per environment, grouped into <strong>Organizational Units</strong>:</p>
+<ul>
+<li><strong>Service Control Policies (SCPs)</strong> sit on the OU and set the maximum permissions allowed. Even an account administrator cannot go beyond them (for example: never disable CloudTrail logging, never leave allowed regions).</li>
+<li><strong>Control Tower</strong> or a custom <strong>landing zone</strong> creates new accounts with logging, networking and security already wired up.</li>
+<li>Humans and pipelines <strong>assume IAM roles</strong> to get temporary access into an account instead of owning permanent users.</li>
+</ul>
+
+<h3 id="134-alibaba-cloud-resource-directory-folders-member-accounts">13.4 Alibaba Cloud: Resource Directory, Folders, Member Accounts</h3>
+<ul>
+<li><strong>Resource Directory</strong> is the organisation tree, with <strong>resource folders</strong> and <strong>member accounts</strong>, similar in spirit to AWS Organizations.</li>
+<li><strong>RAM</strong> (Resource Access Management) is the identity and permission service. <strong>ACK</strong> is managed Kubernetes. <strong>OSS</strong> is object storage. <strong>ACR</strong> is the container registry.</li>
+<li><strong>China-specific realities:</strong> mainland China regions run as a distinct ecosystem with their own accounts and compliance steps. Websites served from mainland China need a government registration known as <strong>ICP filing</strong>, and rules about moving data across borders are strict. Security teams therefore often keep China workloads and their data flows separate and documented.</li>
+</ul>
+
+</section>
+<section class="card" data-i="28" data-part="part-13-how-cloud-accounts-are-organised-in-real-life" data-plabel="Part 13. How Cloud Accounts Are Organised in Real Life" data-title="13.5 Translation table across the three clouds">
+<h3 id="135-translation-table-across-the-three-clouds">13.5 Translation table across the three clouds</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>GCP</th>
+<th>AWS</th>
+<th>Alibaba Cloud</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Organisation tree</td>
+<td>Organization, Folders</td>
+<td>Organizations, OUs</td>
+<td>Resource Directory, folders</td>
+</tr>
+<tr>
+<td>Isolation unit</td>
+<td>Project</td>
+<td>Account</td>
+<td>Member account</td>
+</tr>
+<tr>
+<td>Permissions</td>
+<td>IAM, service accounts</td>
+<td>IAM roles and policies</td>
+<td>RAM</td>
+</tr>
+<tr>
+<td>Managed Kubernetes</td>
+<td>GKE</td>
+<td>EKS</td>
+<td>ACK</td>
+</tr>
+<tr>
+<td>Container registry</td>
+<td>Artifact Registry</td>
+<td>ECR</td>
+<td>ACR</td>
+</tr>
+<tr>
+<td>Object storage</td>
+<td>Cloud Storage</td>
+<td>S3</td>
+<td>OSS</td>
+</tr>
+<tr>
+<td>Secrets</td>
+<td>Secret Manager</td>
+<td>Secrets Manager</td>
+<td>KMS secrets management</td>
+</tr>
+<tr>
+<td>Encryption keys</td>
+<td>Cloud KMS</td>
+<td>KMS</td>
+<td>KMS</td>
+</tr>
+<tr>
+<td>Audit trail</td>
+<td>Cloud Audit Logs</td>
+<td>CloudTrail</td>
+<td>ActionTrail</td>
+</tr>
+</tbody>
+</table></div>
+<p>Learn the concept once; the product names are just local dialects.</p>
+
+<h3 id="136-preventive-versus-detective-controls">13.6 Preventive versus detective controls</h3>
+<p>This idea explains why you need both guardrails and WIZ:</p>
+<ul>
+<li><strong>Preventive control</strong> = a locked door. Organisation policies, SCPs, admission controllers, pipeline gates. It <em>stops</em> the bad action.</li>
+<li><strong>Detective control</strong> = a CCTV camera and an inspector. WIZ, audit logs, SIEM. It <em>notices</em> what slipped through, or what was already there before the lock existed.</li>
+</ul>
+<p>No company has only locks, because rules are never perfect and old resources exist. No company has only cameras, because finding a problem after the fact is expensive. <strong>Good security is layers of both.</strong></p>
+
+</section>
+<section class="card" data-i="29" data-part="part-13-how-cloud-accounts-are-organised-in-real-life" data-plabel="Part 13. How Cloud Accounts Are Organised in Real Life" data-title="13.7 IAM in practice: how over-permission creates a breach path">
+<h3 id="137-iam-in-practice-how-over-permission-creates-a-breach-path">13.7 IAM in practice: how over-permission creates a breach path</h3>
+<p>A realistic chain that WIZ-style tools highlight:</p>
+<ol>
+<li>A forgotten test VM is reachable from the internet.</li>
+<li>It runs an old web framework with a known remote-code-execution bug.</li>
+<li>The VM has an attached service account with the broad <strong>Editor</strong> role (or an AWS role with wildcard permissions).</li>
+<li>That role can read the storage bucket holding customer exports.</li>
+</ol>
+<p>Each item looks small in isolation. Together they are a ready-made attack path. The fix is to break <em>any</em> link: remove the public exposure, patch the framework, or, best of all, give the VM only the minimum role. Prioritising by <strong>path</strong> instead of by raw count of findings is the biggest practical skill in cloud security.</p>
+<p><strong>Good IAM habits to memorise:</strong></p>
+<ul>
+<li>Grant roles to <strong>groups or workload identities</strong>, not to individuals.</li>
+<li>Prefer <strong>predefined narrow roles</strong> over owner or editor.</li>
+<li>Use <strong>just-in-time access</strong> for production: elevated rights for a few hours, with approval and logging.</li>
+<li>Keep <strong>break-glass accounts</strong> for emergencies, heavily monitored, never used for daily work.</li>
+<li>Review who has access regularly; remove access when people change teams or leave.</li>
+</ul>
+
+
+</section>
+<section class="card" data-i="30" data-part="part-14-github-at-enterprise-scale" data-plabel="Part 14. GitHub at Enterprise Scale" data-title="Part 14. GitHub at Enterprise Scale">
+<h2 id="part-14-github-at-enterprise-scale">Part 14. GitHub at Enterprise Scale</h2>
+
+<h3 id="141-people-coming-and-going-sso-and-scim">14.1 People coming and going: SSO and SCIM</h3>
+<p>With 10,000 developers, nobody adds users by hand.</p>
+<ul>
+<li><strong>SSO</strong> (SAML or OIDC) means developers log in to GitHub with their company identity and MFA.</li>
+<li><strong>SCIM</strong> automatically creates and removes accounts and team memberships based on the identity provider.</li>
+<li><strong>Team mapping:</strong> HR or the directory says someone joined the Payments team, so they are automatically added to the right GitHub team. When they leave the company, access disappears within hours without a ticket.</li>
+</ul>
+<p>This is a security control disguised as admin convenience: <strong>offboarding is automatic, so no stale access.</strong></p>
+
+<h3 id="142-repository-lifecycle">14.2 Repository lifecycle</h3>
+<ul>
+<li><strong>Golden templates:</strong> new repos are created from a template that already contains CODEOWNERS, a SECURITY.md, the standard pipeline call, a .gitignore, and a pull request template. Security is born inside the repo.</li>
+<li><strong>Naming and ownership:</strong> a repo name pattern such as team-service-purpose, plus <strong>custom properties</strong> or a catalogue entry that records the owning team, criticality and data class. Without ownership, a finding has nobody to fix it.</li>
+<li><strong>Visibility:</strong> <em>private</em> (selected teams), <em>internal</em> (everyone in the company) and <em>public</em> (the world). Public repos need approval from an open-source review board because mistakes become permanent.</li>
+<li><strong>Retirement:</strong> unused repos are archived. Abandoned repos with live credentials or old dependencies are a common hidden risk.</li>
+</ul>
+
+</section>
+<section class="card" data-i="31" data-part="part-14-github-at-enterprise-scale" data-plabel="Part 14. GitHub at Enterprise Scale" data-title="14.3 Rules enforced centrally: rulesets">
+<h3 id="143-rules-enforced-centrally-rulesets">14.3 Rules enforced centrally: rulesets</h3>
+<p>Organisation-level <strong>rulesets</strong> can apply to many repos at once: protect the main branch, require pull requests, require status checks, block force pushes, require signed commits for sensitive repos. Individual repo admins cannot loosen them.</p>
+
+<h3 id="144-reusable-workflows-one-pipeline-thousands-of-repos">14.4 Reusable workflows: one pipeline, thousands of repos</h3>
+<p>The platform team keeps a central repo (for example acme-platform/pipeline-templates) holding the approved pipeline. A service repo needs only a few lines:</p>
+<pre><code class="language-yaml">name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  standard-pipeline:
+    uses: acme-platform/pipeline-templates/.github/workflows/secure-build.yml@v3
+    with:
+      language: java
+      service-name: order-service
+    secrets: inherit
+</code></pre>
+<p>When the security team improves the template (adds a new scanner), every repo gets it by changing one version number. <strong>This is how a small AppSec team protects thousands of repos.</strong> Required workflows and rulesets can even force the central pipeline to run whether the team wants it or not.</p>
+
+</section>
+<section class="card" data-i="32" data-part="part-14-github-at-enterprise-scale" data-plabel="Part 14. GitHub at Enterprise Scale" data-title="14.5 Runners: where pipelines physically run">
+<h3 id="145-runners-where-pipelines-physically-run">14.5 Runners: where pipelines physically run</h3>
+<ul>
+<li><strong>GitHub-hosted runners:</strong> fresh virtual machines from GitHub, thrown away after each job. Easy and safe, but they sit outside your private network.</li>
+<li><strong>Self-hosted runners:</strong> machines you manage, often inside your private network so they can reach your clusters and internal systems.</li>
+</ul>
+<p><strong>Security rules for self-hosted runners:</strong> make them <strong>ephemeral</strong> (one job, then destroyed), never let untrusted code from forks or public repos run on them, and give them minimal network and cloud permissions. A long-lived runner that runs anyone's code is a treasure chest for attackers.</p>
+
+<h3 id="146-github-advanced-security-ghas-in-daily-life">14.6 GitHub Advanced Security (GHAS) in daily life</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>What it does</th>
+<th>Typical enterprise setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Code scanning</strong> (CodeQL)</td>
+<td>SAST on pull requests and on the main branch</td>
+<td>On for all important repos; criticals block merges</td>
+</tr>
+<tr>
+<td><strong>Secret scanning</strong></td>
+<td>Finds known key and token formats</td>
+<td>On everywhere; <strong>push protection</strong> blocks the commit</td>
+</tr>
+<tr>
+<td><strong>Dependabot alerts and updates</strong></td>
+<td>Warns about vulnerable libraries and opens fix PRs</td>
+<td>On everywhere; auto-update PRs for patches</td>
+</tr>
+<tr>
+<td><strong>Dependency review</strong></td>
+<td>Shows risk of libraries a PR is adding</td>
+<td>Required check on PRs</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Triage reality:</strong> alerts have an owner (the repo's team), a severity, and a dismissal reason (false positive, used only in tests, won't fix). Security reviews dismissals for critical repos. The aim is not zero alerts; the aim is <strong>no unexamined critical alerts older than the agreed deadline</strong>.</p>
+
+</section>
+<section class="card" data-i="33" data-part="part-14-github-at-enterprise-scale" data-plabel="Part 14. GitHub at Enterprise Scale" data-title="14.7 Tokens, apps and third-party access">
+<h3 id="147-tokens-apps-and-third-party-access">14.7 Tokens, apps and third-party access</h3>
+<ul>
+<li>Personal access tokens are risky because they live long and act as a person. Prefer <strong>fine-grained tokens</strong> with short expiry, and better still <strong>GitHub Apps</strong> with narrow permissions.</li>
+<li>Third-party integrations (every app in the marketplace you install) can read your code. An approval process checks each one.</li>
+<li>The <strong>audit log</strong> is streamed into the SIEM so that suspicious actions (mass cloning, new deploy keys, org setting changes) raise alerts.</li>
+</ul>
+
+<h3 id="148-scale-problems-you-will-meet">14.8 Scale problems you will meet</h3>
+<ul>
+<li><strong>Alert flood:</strong> 20,000 findings across 4,000 repos. Fix by <em>prioritising</em> (internet-facing, production, critical, exploitable first) and by auto-assigning to owners.</li>
+<li><strong>Ownership gaps:</strong> repos with no owner. Fix by making ownership metadata mandatory.</li>
+<li><strong>Exceptions that never expire:</strong> every waiver needs an end date.</li>
+<li><strong>Developer fatigue:</strong> too many noisy checks make people ignore all of them. Tune rules, reduce false positives, and show the fix path inside the PR.</li>
+<li><strong>Security champions:</strong> one volunteer developer per team who acts as the local security friend. This is how a handful of AppSec people reach thousands of developers.</li>
+</ul>
+
+
+</section>
+<section class="card" data-i="34" data-part="part-15-kubernetes-in-real-life" data-plabel="Part 15. Kubernetes in Real Life" data-title="Part 15. Kubernetes in Real Life">
+<h2 id="part-15-kubernetes-in-real-life">Part 15. Kubernetes in Real Life</h2>
+
+<h3 id="151-the-mental-model-an-apartment-complex">15.1 The mental model: an apartment complex</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Kubernetes word</th>
+<th>Apartment-complex analogy</th>
+<th>Plain meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cluster</strong></td>
+<td>The whole housing complex</td>
+<td>A group of machines managed together</td>
+</tr>
+<tr>
+<td><strong>Node</strong></td>
+<td>One building (a real or virtual machine)</td>
+<td>Where containers physically run</td>
+</tr>
+<tr>
+<td><strong>Pod</strong></td>
+<td>One flat</td>
+<td>Smallest unit; holds one or more containers</td>
+</tr>
+<tr>
+<td><strong>Container</strong></td>
+<td>The family living in the flat</td>
+<td>Your app plus what it needs</td>
+</tr>
+<tr>
+<td><strong>Deployment</strong></td>
+<td>The lease rule: always keep 3 flats of this type occupied</td>
+<td>Says how many copies to run and which image</td>
+</tr>
+<tr>
+<td><strong>Service</strong></td>
+<td>The reception desk with a fixed phone number</td>
+<td>Stable address, even as flats change</td>
+</tr>
+<tr>
+<td><strong>Ingress</strong></td>
+<td>The main gate</td>
+<td>Lets outside traffic into the right service</td>
+</tr>
+<tr>
+<td><strong>Namespace</strong></td>
+<td>A wing or block of the complex</td>
+<td>Logical separation inside a cluster</td>
+</tr>
+<tr>
+<td><strong>ConfigMap / Secret</strong></td>
+<td>Notice board / locked drawer</td>
+<td>Settings / sensitive values</td>
+</tr>
+<tr>
+<td><strong>RBAC</strong></td>
+<td>Who holds which keys</td>
+<td>Permissions for people and programs</td>
+</tr>
+<tr>
+<td><strong>NetworkPolicy</strong></td>
+<td>Internal doors between flats</td>
+<td>Which pods may talk to which</td>
+</tr>
+<tr>
+<td><strong>Resource limits</strong></td>
+<td>Electricity and water rationing</td>
+<td>Stops one pod starving others</td>
+</tr>
+</tbody>
+</table></div>
+<p>The manager of the complex is the <strong>control plane</strong>. You tell it the <em>desired state</em> (I want 3 copies of order-service version 5), and it keeps working to make reality match. If a pod dies, it starts another. That constant self-repair is Kubernetes' superpower.</p>
+
+</section>
+<section class="card" data-i="35" data-part="part-15-kubernetes-in-real-life" data-plabel="Part 15. Kubernetes in Real Life" data-title="15.2 How clusters are laid out in a big company">
+<h3 id="152-how-clusters-are-laid-out-in-a-big-company">15.2 How clusters are laid out in a big company</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Typical use</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One cluster per environment (dev, qa, prod)</td>
+<td>Common starting point</td>
+<td>Prod is isolated from experiments</td>
+</tr>
+<tr>
+<td>Several prod clusters per region</td>
+<td>Large traffic, resilience</td>
+<td>One for India, one for Europe, and so on</td>
+</tr>
+<tr>
+<td>Shared cluster, one <strong>namespace per team</strong></td>
+<td>Saves cost</td>
+<td>Needs strong RBAC, quotas and network policies</td>
+</tr>
+<tr>
+<td>Separate cluster for sensitive workloads</td>
+<td>Payments, regulated data</td>
+<td>Extra isolation</td>
+</tr>
+<tr>
+<td>Regional clusters on GKE, EKS and ACK</td>
+<td>Multi-cloud companies</td>
+<td>Same policies, different providers</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Multi-tenancy</strong> (many teams in one cluster) is like many families sharing a complex. It works only with rules: a team gets its own wing, a quota, and cannot enter another wing.</p>
+
+<h3 id="153-security-controls-inside-kubernetes">15.3 Security controls inside Kubernetes</h3>
+<ol>
+<li><strong>RBAC:</strong> no human gets cluster-admin day to day. Developers get read access to their own namespace in prod; changes arrive through the pipeline.</li>
+<li><strong>Pod security standards:</strong> the <em>restricted</em> profile means non-root, no privileged mode, no extra Linux capabilities, read-only filesystem where possible.</li>
+<li><strong>Network policies:</strong> start with <em>deny all</em>, then allow only the needed paths (order-service may call payment-service, nothing else).</li>
+<li><strong>Secrets:</strong> a Kubernetes Secret is only base64-encoded, which is <em>not</em> encryption. Real setups pull secrets from Secret Manager or Vault through an operator or CSI driver, and enable envelope encryption of etcd with a KMS key.</li>
+<li><strong>Admission control:</strong> Kyverno or OPA Gatekeeper (plus Binary Authorization on GKE) rejects bad pods before they start: unsigned images, images from unknown registries, privileged containers, missing resource limits.</li>
+<li><strong>Private clusters:</strong> the control plane and nodes have no public exposure; admins reach them through approved paths.</li>
+<li><strong>Workload identity:</strong> pods talk to cloud services using GKE Workload Identity (or IRSA on EKS, RRSA on ACK) instead of key files.</li>
+<li><strong>Audit logs:</strong> every API action is recorded and shipped to the SIEM.</li>
+</ol>
+<p><strong>What a hardened deployment looks like:</strong></p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: orders-prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: app
+          image: registry.acme.com/orders/order-service@sha256:&lt;digest&gt;
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ['ALL']
+          resources:
+            requests: { cpu: 250m, memory: 256Mi }
+            limits: { cpu: 500m, memory: 512Mi }
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8080 }
+</code></pre>
+<p>Spot the details: the image is referenced by <strong>digest</strong> (an unchangeable fingerprint, not a movable tag), it does not run as root, it cannot gain extra powers, and it has resource limits and a health check.</p>
+
+</section>
+<section class="card" data-i="36" data-part="part-15-kubernetes-in-real-life" data-plabel="Part 15. Kubernetes in Real Life" data-title="15.4 GitOps: the building plan on the office wall">
+<h3 id="154-gitops-the-building-plan-on-the-office-wall">15.4 GitOps: the building plan on the office wall</h3>
+<p>In <strong>GitOps</strong> tools (Argo CD, Flux), the desired state of the cluster lives in a Git repo. A supervisor program inside the cluster compares reality with the plan every few minutes and corrects differences.</p>
+<ul>
+<li>To change production, you open a PR to the <em>config repo</em>. Review and checks happen like any code change.</li>
+<li>Nobody types kubectl commands into prod. If someone does, the supervisor reverts it (<strong>drift correction</strong>) and the audit trail shows it.</li>
+<li>Rollback = revert the commit.</li>
+</ul>
+<p>Security win: <strong>Git becomes the audit log of everything that ever ran in production.</strong></p>
+
+<h3 id="155-day-two-reality">15.5 Day-two reality</h3>
+<ul>
+<li><strong>Upgrades:</strong> Kubernetes versions go out of support; clusters must be upgraded regularly (GKE release channels automate much of it).</li>
+<li><strong>Node patching:</strong> base images and OS patches are refreshed; nodes are replaced, not repaired.</li>
+<li><strong>Rolling updates:</strong> new pods start and pass health checks before old ones stop, so users see no downtime.</li>
+<li><strong>Autoscaling:</strong> more pods at peak time, fewer at night. Black Friday is when this earns its keep.</li>
+<li><strong>Cost and quotas:</strong> security tools must not blow up the cloud bill; agentless scanning is popular partly for this reason.</li>
+</ul>
+
+</section>
+<section class="card" data-i="37" data-part="part-15-kubernetes-in-real-life" data-plabel="Part 15. Kubernetes in Real Life" data-title="15.6 Misconfigurations scanners love to find">
+<h3 id="156-misconfigurations-scanners-love-to-find">15.6 Misconfigurations scanners love to find</h3>
+<p>Privileged containers; containers running as root; hostPath mounts; missing resource limits; default service account in use; cluster-admin bound to normal users; secrets in environment variables of a public manifest; images using the latest tag; a public Kubernetes dashboard or API; no network policies; very old cluster versions.</p>
+
+
+</section>
+<section class="card" data-i="38" data-part="part-16-pipeline-engineering-in-depth" data-plabel="Part 16. Pipeline Engineering in Depth" data-title="Part 16. Pipeline Engineering in Depth">
+<h2 id="part-16-pipeline-engineering-in-depth">Part 16. Pipeline Engineering in Depth</h2>
+
+<h3 id="161-build-once-promote-many">16.1 Build once, promote many</h3>
+<p>A golden rule you met earlier, now with detail:</p>
+<ul>
+<li>The pipeline builds the image <strong>once</strong> and records its <strong>digest</strong> (like a fingerprint).</li>
+<li>QA, staging and prod all run <strong>that exact digest</strong>. What was tested is what ships.</li>
+<li>Environment differences (database address, feature switches, replica counts) are supplied as <strong>configuration</strong> (Helm values or Kustomize overlays), never by rebuilding.</li>
+<li>Secrets are fetched at run time per environment from Secret Manager, so a dev secret cannot open prod.</li>
+</ul>
+
+<h3 id="162-the-promotion-ladder">16.2 The promotion ladder</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Trigger</th>
+<th>Checks before moving up</th>
+<th>Who approves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Merge to main</td>
+<td>PR approved</td>
+<td>Secret scan, SAST, SCA, unit tests</td>
+<td>Reviewers and CODEOWNERS</td>
+</tr>
+<tr>
+<td>Dev deploy</td>
+<td>Automatic on merge</td>
+<td>Smoke test</td>
+<td>Nobody; automatic</td>
+</tr>
+<tr>
+<td>QA deploy</td>
+<td>Automatic or on demand</td>
+<td>Integration tests, DAST, API tests</td>
+<td>QA lead via test results</td>
+</tr>
+<tr>
+<td>Staging</td>
+<td>Release candidate tag</td>
+<td>Performance test, final policy check</td>
+<td>Release manager</td>
+</tr>
+<tr>
+<td>Prod</td>
+<td>Scheduled change window</td>
+<td>Signature verified, no open critical, change ticket linked</td>
+<td>Named approver, often two people for critical systems</td>
+</tr>
+</tbody>
+</table></div>
+<p>For regulated systems (payments, banking), the change ticket (ServiceNow or Jira) must be linked to the deployment so an auditor can trace <strong>who approved what, when</strong>.</p>
+
+</section>
+<section class="card" data-i="39" data-part="part-16-pipeline-engineering-in-depth" data-plabel="Part 16. Pipeline Engineering in Depth" data-title="16.3 Branching in practice">
+<h3 id="163-branching-in-practice">16.3 Branching in practice</h3>
+<ul>
+<li><strong>Trunk-based development:</strong> small, frequent merges to main, protected by strong automated checks. Favoured by modern teams.</li>
+<li><strong>Release branches or Gitflow:</strong> longer-lived branches for scheduled releases. Common in older or regulated products.</li>
+</ul>
+<p>Security does not care which you choose, as long as <strong>every route to production passes the gates</strong>.</p>
+
+<h3 id="164-supply-chain-security-protecting-the-factory-itself">16.4 Supply-chain security: protecting the factory itself</h3>
+<p>Attackers increasingly target the <em>build pipeline and dependencies</em> rather than your code, because one compromise reaches many victims. Real events that shaped today's practice:</p>
+<ul>
+<li><strong>SolarWinds (2020):</strong> attackers inserted malicious code into the build process, so a signed, legitimate update carried a backdoor to thousands of customers.</li>
+<li><strong>Log4Shell (December 2021):</strong> a critical flaw in a ubiquitous Java logging library. The hard question for every company was: where do we use it?</li>
+<li><strong>Codecov (2021):</strong> a modified uploader script in CI leaked secrets from customers' pipelines.</li>
+<li><strong>tj-actions/changed-files (March 2025):</strong> a widely used GitHub Action was compromised and tried to expose pipeline secrets, which is why pinning actions to a full commit SHA is now standard advice.</li>
+</ul>
+<p><strong>Defences, in plain language:</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Defence</th>
+<th>Analogy</th>
+<th>What it gives you</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SBOM</strong> (SPDX or CycloneDX format)</td>
+<td>Ingredient list on a packet</td>
+<td>Instantly answers where a vulnerable library is used</td>
+</tr>
+<tr>
+<td><strong>Image signing</strong> (cosign, Sigstore)</td>
+<td>Tamper-proof seal</td>
+<td>The cluster can verify the image came from your pipeline</td>
+</tr>
+<tr>
+<td><strong>Provenance attestation</strong></td>
+<td>Receipt of who built it, where, from which commit</td>
+<td>Proves the build was not tampered with</td>
+</tr>
+<tr>
+<td><strong>SLSA framework</strong></td>
+<td>A maturity ladder for build integrity</td>
+<td>Gives a shared target for how trustworthy builds are</td>
+</tr>
+<tr>
+<td><strong>Pin actions by SHA</strong></td>
+<td>Ordering a specific batch number, not just the product name</td>
+<td>Stops silent changes to third-party actions</td>
+</tr>
+<tr>
+<td><strong>Private registry or mirror</strong></td>
+<td>Buying from your own approved warehouse</td>
+<td>Blocks typosquatted or hijacked packages</td>
+</tr>
+<tr>
+<td><strong>Lockfiles and hash checking</strong></td>
+<td>Fixed shopping list</td>
+<td>Stops surprise dependency versions</td>
+</tr>
+<tr>
+<td><strong>Dependency confusion protection</strong></td>
+<td>Making sure internal names cannot be claimed publicly</td>
+<td>Prevents attackers publishing a public package with your internal name</td>
+</tr>
+</tbody>
+</table></div>
+
+</section>
+<section class="card" data-i="40" data-part="part-16-pipeline-engineering-in-depth" data-plabel="Part 16. Pipeline Engineering in Depth" data-title="16.5 Secrets and cloud login from a pipeline">
+<h3 id="165-secrets-and-cloud-login-from-a-pipeline">16.5 Secrets and cloud login from a pipeline</h3>
+<p>The old way: paste a long-lived cloud key into GitHub secrets. If leaked, it works forever. The modern way is <strong>OIDC federation</strong>: GitHub proves who the job is, and the cloud hands out a token valid for minutes.</p>
+<pre><code class="language-yaml">jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/123456/locations/global/workloadIdentityPools/github/providers/github-oidc
+          service_account: deployer-dev@orders-dev.iam.gserviceaccount.com
+      - run: echo 'now deploy using short-lived credentials'
+</code></pre>
+<p>The trust rule on the cloud side says <strong>only this repo, only this branch or environment</strong> may use this service account. The prod service account is a different one, trusting only the prod environment, which itself requires approval. Same idea exists on AWS (OIDC identity provider plus an IAM role) and on Alibaba Cloud (OIDC role for RAM).</p>
+
+</section>
+<section class="card" data-i="41" data-part="part-16-pipeline-engineering-in-depth" data-plabel="Part 16. Pipeline Engineering in Depth" data-title="16.6 Releasing safely: rolling, blue-green, canary">
+<h3 id="166-releasing-safely-rolling-blue-green-canary">16.6 Releasing safely: rolling, blue-green, canary</h3>
+<ul>
+<li><strong>Rolling update:</strong> replace pods gradually.</li>
+<li><strong>Blue-green:</strong> two full copies; flip traffic from the old (blue) to the new (green) in one move. Instant rollback by flipping back.</li>
+<li><strong>Canary:</strong> send 1 percent of users to the new version, watch error rates and security signals, then 10, 50, 100 percent.</li>
+</ul>
+<p>Fast rollback is itself a security feature, because when a bad release or a new vulnerability appears, the shorter the exposure, the smaller the damage. <strong>Feature flags</strong> let a risky feature be switched off without redeploying.</p>
+
+<h3 id="167-pipeline-hardening-checklist">16.7 Pipeline hardening checklist</h3>
+<ul>
+<li>Workflow permissions default to read-only; grant more per job.</li>
+<li>Third-party actions pinned to commit SHA and updated through reviewed PRs.</li>
+<li>Production environment requires reviewers; self-approval disabled.</li>
+<li>No secrets exposed to workflows triggered from forks.</li>
+<li>Ephemeral runners; no shared long-lived credentials on them.</li>
+<li>Logs never print secrets; masking turned on.</li>
+<li>Pipeline definition files protected by CODEOWNERS, because whoever edits the pipeline controls what ships.</li>
+<li>Branch protection prevents bypassing the pipeline.</li>
+</ul>
+
+
+</section>
+<section class="card" data-i="42" data-part="part-17-scanners-in-depth-and-wiz-day-to-day" data-plabel="Part 17. Scanners in Depth and WIZ Day to Day" data-title="Part 17. Scanners in Depth and WIZ Day to Day">
+<h2 id="part-17-scanners-in-depth-and-wiz-day-to-day">Part 17. Scanners in Depth and WIZ Day to Day</h2>
+
+<h3 id="171-how-each-scanner-thinks">17.1 How each scanner thinks</h3>
+<ul>
+<li><strong>SAST (CodeQL, Semgrep, SonarQube):</strong> turns your source into a model, then asks questions like: does data from an HTTP request (a <em>source</em>) ever reach a database query (a <em>sink</em>) without cleaning (<em>sanitiser</em>)? If yes, that is potential SQL injection. Analogy: an editor tracing a rumour from where it started to where it was printed.</li>
+<li><strong>SCA (Dependabot, Snyk, Trivy):</strong> reads your dependency list, then matches names and versions against vulnerability databases (CVE records, the GitHub Advisory Database). Analogy: comparing grocery labels against a recall list. Better tools also check <em>reachability</em>: does your code actually call the vulnerable function?</li>
+<li><strong>DAST (OWASP ZAP, Burp):</strong> attacks the running QA app from outside with crafted requests, like a mystery shopper trying every door.</li>
+<li><strong>Secret scanners:</strong> pattern matching for known token formats, entropy checks for random-looking strings, and often <strong>validation</strong> by safely testing whether a key is still live.</li>
+<li><strong>IaC scanners (Checkov, tfsec, WIZ Code):</strong> parse Terraform, CloudFormation and Kubernetes YAML and compare against policies such as no public buckets and no open SSH.</li>
+<li><strong>Container scanners (Trivy, Grype, WIZ):</strong> unpack each image layer, list operating-system packages and libraries, then match against vulnerability data.</li>
+<li><strong>Cloud posture and workload scanners (WIZ):</strong> read cloud configuration through provider APIs and inspect copies of workload disks (snapshots) without installing agents.</li>
+</ul>
+
+</section>
+<section class="card" data-i="43" data-part="part-17-scanners-in-depth-and-wiz-day-to-day" data-plabel="Part 17. Scanners in Depth and WIZ Day to Day" data-title="17.2 Strengths and weaknesses">
+<h3 id="172-strengths-and-weaknesses">17.2 Strengths and weaknesses</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Finds</th>
+<th>Typical weakness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SAST</td>
+<td>Flaws in your own logic</td>
+<td>False positives; misses runtime and config issues</td>
+</tr>
+<tr>
+<td>SCA</td>
+<td>Known-vulnerable libraries</td>
+<td>Noisy; many findings are not reachable</td>
+</tr>
+<tr>
+<td>DAST</td>
+<td>Real exploitable behaviour in a running app</td>
+<td>Needs a working environment; slow</td>
+</tr>
+<tr>
+<td>Secrets</td>
+<td>Leaked credentials</td>
+<td>Misses custom formats; some false alarms</td>
+</tr>
+<tr>
+<td>IaC</td>
+<td>Misconfiguration before creation</td>
+<td>Cannot see what was changed by hand later</td>
+</tr>
+<tr>
+<td>Container</td>
+<td>Old packages in images</td>
+<td>Many OS-level findings with no fix available</td>
+</tr>
+<tr>
+<td>Cloud posture (WIZ)</td>
+<td>What is actually deployed and exposed</td>
+<td>Cannot tell you the exact line of code, unless linked back to the repo</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>No single scanner is enough. They are different kinds of inspector.</strong></p>
+
+<h3 id="173-severity-is-not-the-same-as-risk">17.3 Severity is not the same as risk</h3>
+<p>A vulnerability has a <strong>CVSS score</strong> (0 to 10) describing how bad it could be in general. Real priority needs more questions:</p>
+<ul>
+<li>Is it <strong>actively exploited</strong> in the wild? (CISA's Known Exploited Vulnerabilities list, EPSS probability scores)</li>
+<li>Is the asset <strong>internet-facing</strong>?</li>
+<li>Is it in <strong>production</strong> and does it hold <strong>sensitive data</strong>?</li>
+<li>Is the vulnerable code <strong>reachable</strong>?</li>
+<li>Is there a <strong>compensating control</strong> (WAF rule, network block)?</li>
+</ul>
+<p><strong>Example:</strong> A CVSS 9.8 flaw in a library inside an internal batch job with no network access and no sensitive data may be less urgent than a CVSS 7.5 flaw on an internet-facing payment API with a powerful role. Context decides.</p>
+
+</section>
+<section class="card" data-i="44" data-part="part-17-scanners-in-depth-and-wiz-day-to-day" data-plabel="Part 17. Scanners in Depth and WIZ Day to Day" data-title="17.4 Handling false positives without losing trust">
+<h3 id="174-handling-false-positives-without-losing-trust">17.4 Handling false positives without losing trust</h3>
+<ol>
+<li>Developer marks a finding as false positive with a reason.</li>
+<li>AppSec samples and reviews those dismissals, especially for critical code.</li>
+<li>Repeated false positives from one rule lead to <strong>tuning the rule</strong>, not ignoring the tool.</li>
+<li>Waivers have an owner, a reason and an <strong>expiry date</strong>.</li>
+</ol>
+<p>Developers keep trusting the pipeline only if it is mostly right and explains itself.</p>
+
+<h3 id="175-wiz-in-depth">17.5 WIZ in depth</h3>
+<p><em>Product names and feature bundles change over time; confirm current capabilities in WIZ documentation before quoting them to a client or manager.</em></p>
+<ul>
+<li><strong>Connectors:</strong> WIZ connects to cloud accounts through read-only roles (AWS, GCP and others, with Alibaba Cloud among supported clouds at the time of writing). It also connects to Kubernetes clusters and code platforms such as GitHub.</li>
+<li><strong>The Security Graph:</strong> WIZ stores everything as a connected map: a VM is linked to its network exposure, its identity, its vulnerabilities, and the data it can reach. Questions such as show me internet-exposed workloads with critical vulnerabilities and access to sensitive data become simple searches.</li>
+<li><strong>Findings versus Issues:</strong> a <em>finding</em> is a single raw observation (one vulnerability, one misconfiguration). An <em>Issue</em> is a <strong>risk worth acting on</strong>, built by combining findings along an attack path. Teams work Issues, not raw findings.</li>
+<li><strong>Controls and policies:</strong> Controls are rules (for example, bucket is public). Policies group them for compliance frameworks such as CIS benchmarks, PCI DSS or ISO 27001, and for your own standards.</li>
+<li><strong>Projects:</strong> a way to group cloud resources by team, application or environment. Projects are the bridge to <strong>ownership</strong>: the Orders team sees only Orders issues, and managers see the status for their area.</li>
+<li><strong>Automation and ticketing:</strong> rules route Issues to Jira, ServiceNow or Slack with the right team, severity and deadline, so security does not manually forward thousands of items.</li>
+<li><strong>WIZ Code and the pipeline:</strong> a CLI and integrations scan IaC, containers, secrets and code in pull requests and CI, set policies that warn or block, and <strong>map a cloud resource back to the repo and pipeline that produced it</strong>. This is what turns a production finding into a fix in the right repo.</li>
+<li><strong>Runtime layer:</strong> where enabled, a sensor adds live threat detection on workloads, complementing the agentless view.</li>
+</ul>
+
+</section>
+<section class="card" data-i="45" data-part="part-17-scanners-in-depth-and-wiz-day-to-day" data-plabel="Part 17. Scanners in Depth and WIZ Day to Day" data-title="17.6 A WIZ triage walkthrough">
+<h3 id="176-a-wiz-triage-walkthrough">17.6 A WIZ triage walkthrough</h3>
+<p>Issue appears: <strong>Publicly exposed VM with a critical vulnerability and a highly privileged service account.</strong></p>
+<ol>
+<li><strong>Validate:</strong> open the graph path. Is the VM really reachable from the internet? Is the vulnerable service running?</li>
+<li><strong>Find the owner:</strong> use the Project, tags and code-to-cloud mapping to identify the team and the repo.</li>
+<li><strong>Contain first if urgent:</strong> restrict the firewall rule or remove public access immediately.</li>
+<li><strong>Open a ticket</strong> to the owning team with the graph link, deadline and fix guidance.</li>
+<li><strong>Fix at the source:</strong> update the Terraform or image in the repo so the problem does not return.</li>
+<li><strong>Verify:</strong> confirm the Issue closes after redeployment.</li>
+<li><strong>If a fix cannot happen soon:</strong> record a time-limited exception with compensating controls and a named approver.</li>
+<li><strong>Learn:</strong> add a pipeline rule so this class of mistake fails earlier next time.</li>
+</ol>
+
+<h3 id="177-numbers-a-security-team-watches">17.7 Numbers a security team watches</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean time to remediate by severity</td>
+<td>Shows whether fixes actually happen</td>
+</tr>
+<tr>
+<td>Percentage of repos with scanning enabled</td>
+<td>Coverage</td>
+</tr>
+<tr>
+<td>Percentage of production assets with a named owner</td>
+<td>Findings need owners</td>
+</tr>
+<tr>
+<td>Open critical issues older than SLA</td>
+<td>The real risk backlog</td>
+</tr>
+<tr>
+<td>Percentage of deployments passing all gates without exceptions</td>
+<td>Pipeline health</td>
+</tr>
+<tr>
+<td>Secrets-found-in-code trend</td>
+<td>Developer habits improving or not</td>
+</tr>
+<tr>
+<td>False positive rate by tool</td>
+<td>Developer trust</td>
+</tr>
+</tbody>
+</table></div>
+
+
+</section>
+<section class="card" data-i="46" data-part="part-18-vulnerability-management-from-finding-to-fixed" data-plabel="Part 18. Vulnerability Management: From Finding to Fixed" data-title="Part 18. Vulnerability Management: From Finding to Fixed">
+<h2 id="part-18-vulnerability-management-from-finding-to-fixed">Part 18. Vulnerability Management: From Finding to Fixed</h2>
+<p>Finding problems is easy. <strong>Getting them fixed across thousands of teams</strong> is the real job. Think of a city health department: inspectors find violations, but a process makes sure each shop actually fixes them by a deadline.</p>
+
+<h3 id="181-the-lifecycle">18.1 The lifecycle</h3>
+<ol>
+<li><strong>Detect:</strong> scanners, WIZ, bug bounty reports, pen tests, vendor advisories.</li>
+<li><strong>Deduplicate and enrich:</strong> the same library flaw appears in 300 repos; group it into one problem. Add context: exposure, data sensitivity, exploit activity.</li>
+<li><strong>Prioritise:</strong> rank by real risk, not by raw score.</li>
+<li><strong>Assign:</strong> to the owning team through a ticket, with clear fix guidance.</li>
+<li><strong>Fix:</strong> upgrade the library, patch the image, change the configuration, or add a compensating control.</li>
+<li><strong>Verify:</strong> rescan; confirm the issue closed in the running environment, not just in the repo.</li>
+<li><strong>Report:</strong> dashboards for managers, audit evidence for compliance.</li>
+</ol>
+
+</section>
+<section class="card" data-i="47" data-part="part-18-vulnerability-management-from-finding-to-fixed" data-plabel="Part 18. Vulnerability Management: From Finding to Fixed" data-title="18.2 Example remediation deadlines (SLAs)">
+<h3 id="182-example-remediation-deadlines-slas">18.2 Example remediation deadlines (SLAs)</h3>
+<p>Every company chooses its own numbers. A typical shape:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Severity (after context)</th>
+<th>Internet-facing production</th>
+<th>Internal production</th>
+<th>Non-production</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Critical, actively exploited</td>
+<td>Hours to 2 days</td>
+<td>7 days</td>
+<td>30 days</td>
+</tr>
+<tr>
+<td>Critical</td>
+<td>7 days</td>
+<td>14 days</td>
+<td>30 days</td>
+</tr>
+<tr>
+<td>High</td>
+<td>30 days</td>
+<td>45 days</td>
+<td>60 days</td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>90 days</td>
+<td>120 days</td>
+<td>Next release</td>
+</tr>
+<tr>
+<td>Low</td>
+<td>Best effort</td>
+<td>Best effort</td>
+<td>Best effort</td>
+</tr>
+</tbody>
+</table></div>
+<p>The tighter the exposure, the tighter the deadline. Notice that the SLA depends on <strong>where</strong> the problem sits, not only on how scary the vulnerability sounds.</p>
+
+<h3 id="183-exceptions-done-properly">18.3 Exceptions done properly</h3>
+<p>Sometimes a fix is impossible this quarter (a vendor has not released a patch, a legacy system cannot be upgraded). A proper <strong>risk exception</strong> contains:</p>
+<ul>
+<li>What the risk is, in plain language.</li>
+<li>Why it cannot be fixed now.</li>
+<li><strong>Compensating controls</strong> (extra monitoring, network restriction, WAF rule).</li>
+<li>A named <strong>risk owner</strong> who accepts it (a business owner, not only an engineer).</li>
+<li>An <strong>expiry date</strong> and a review.</li>
+</ul>
+<p>Exceptions without expiry dates become permanent holes.</p>
+
+</section>
+<section class="card" data-i="48" data-part="part-18-vulnerability-management-from-finding-to-fixed" data-plabel="Part 18. Vulnerability Management: From Finding to Fixed" data-title="18.4 Patch cadence in the real world">
+<h3 id="184-patch-cadence-in-the-real-world">18.4 Patch cadence in the real world</h3>
+<ul>
+<li><strong>Microsoft Patch Tuesday</strong> and <strong>SAP Patch Day</strong> both fall on the second Tuesday of the month, so many security teams plan their monthly cycle around them.</li>
+<li><strong>Out-of-band emergencies</strong> (a Log4Shell-style event) override the calendar; the incident process takes over.</li>
+<li><strong>Containers</strong> are patched by rebuilding the image with updated base layers and redeploying, not by logging in to fix running containers.</li>
+</ul>
+
+
+</section>
+<section class="card" data-i="49" data-part="part-19-when-things-go-wrong-an-incident-minute-by-minute" data-plabel="Part 19. When Things Go Wrong: An Incident, Minute by Minute" data-title="Part 19. When Things Go Wrong: An Incident, Minute by Minute">
+<h2 id="part-19-when-things-go-wrong-an-incident-minute-by-minute">Part 19. When Things Go Wrong: An Incident, Minute by Minute</h2>
+
+<h3 id="191-how-incidents-are-organised">19.1 How incidents are organised</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Incident commander</strong></td>
+<td>Runs the response, makes decisions, keeps people focused</td>
+</tr>
+<tr>
+<td><strong>Technical lead(s)</strong></td>
+<td>Investigate and fix</td>
+</tr>
+<tr>
+<td><strong>Communications lead</strong></td>
+<td>Updates management, legal, customers, regulators</td>
+</tr>
+<tr>
+<td><strong>Scribe</strong></td>
+<td>Writes the timeline as it happens</td>
+</tr>
+<tr>
+<td><strong>Business or product owner</strong></td>
+<td>Weighs business impact and trade-offs</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Severity levels</strong> (example): Sev1 = customer data or major revenue at risk; Sev2 = significant but contained; Sev3 = minor. Higher severity wakes more people and starts legal and compliance clocks. For example, many laws require breach notification within a fixed time window, which is why the timeline matters.</p>
+
+<h3 id="192-scenario-a-cloud-key-leaks-into-a-public-repo">19.2 Scenario: a cloud key leaks into a public repo</h3>
+<p>A developer in acme-sandbox pastes a working AWS key into a README on a public repo. Here is the response:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Time</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>02:10</strong></td>
+<td>A secret scanner alerts: valid cloud key in a public repo. Automatic ticket to the on-call security engineer.</td>
+</tr>
+<tr>
+<td><strong>02:15</strong></td>
+<td>On-call confirms the key is live and finds its owner and permissions. It belongs to a service account with write access to an S3 bucket in a non-prod account.</td>
+</tr>
+<tr>
+<td><strong>02:20</strong></td>
+<td><strong>Contain:</strong> key disabled. Repo made private. This happens before anything else, because bots scrape new commits within minutes.</td>
+</tr>
+<tr>
+<td><strong>02:30</strong></td>
+<td>Cloud audit logs show the key was used from an unknown IP at 02:07 to list buckets, and <strong>three downloads</strong> occurred.</td>
+</tr>
+<tr>
+<td><strong>02:45</strong></td>
+<td>Severity raised. Bucket contents are reviewed: test data only, no customer data. Scope stays contained.</td>
+</tr>
+<tr>
+<td><strong>03:30</strong></td>
+<td><strong>Eradicate:</strong> all keys for that service account rotated; role permissions trimmed; other repos searched for the same key.</td>
+</tr>
+<tr>
+<td><strong>Next day</strong></td>
+<td><strong>Recover and notify:</strong> developer and manager informed; legal notified for the record; no customer impact.</td>
+</tr>
+<tr>
+<td><strong>Within a week</strong></td>
+<td><strong>Blameless post-mortem:</strong> why was a long-lived key possible at all? Actions: enforce push protection, move to OIDC and short-lived roles, add an SCP that blocks long-lived key creation in sandbox accounts.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The lesson:</strong> speed of containment mattered more than speed of investigation. And the <em>root fix</em> was removing the possibility, not punishing the person.</p>
+
+</section>
+<section class="card" data-i="50" data-part="part-19-when-things-go-wrong-an-incident-minute-by-minute" data-plabel="Part 19. When Things Go Wrong: An Incident, Minute by Minute" data-title="19.3 The incident response loop">
+<h3 id="193-the-incident-response-loop">19.3 The incident response loop</h3>
+<p><strong>Prepare, detect, contain, eradicate, recover, learn.</strong> Preparation (runbooks, contact lists, practised drills, good logs) decides how calm the other five phases are. A company that has never rehearsed will discover its gaps at 2 AM.</p>
+
+<h3 id="194-logs-you-wish-you-had">19.4 Logs you wish you had</h3>
+<p>Cloud audit logs (GCP Audit Logs, CloudTrail, ActionTrail), Kubernetes audit logs, GitHub audit log, identity provider sign-in logs, load balancer and WAF logs, and application logs. All are sent to a central <strong>SIEM</strong> and kept for a defined period. If logging was never enabled, the investigation is blind. Logging is an <em>advance</em> investment.</p>
+
+
+</section>
+<section class="card" data-i="51" data-part="part-20-case-study-acme-retail-ships-a-black-friday-feature" data-plabel="Part 20. Case Study: Acme Retail Ships a Black Friday Feature" data-title="Part 20. Case Study: Acme Retail Ships a Black Friday Feature">
+<h2 id="part-20-case-study-acme-retail-ships-a-black-friday-feature">Part 20. Case Study: Acme Retail Ships a Black Friday Feature</h2>
+<p>Acme wants a new <strong>Buy Now, Pay Later</strong> option live before Black Friday. Follow it across eight weeks and see where DevSecOps shows up.</p>
+
+<h3 id="week-1-idea-and-design">Week 1: Idea and design</h3>
+<p>Product, architects and AppSec meet. New feature means new risk: money, personal data, a new third-party lender integration. <strong>Threat modelling</strong> asks: what could go wrong? Fraudulent applications, tampered amounts, leaked personal data, lender API outage. Security requirements go into the tickets: encryption of personal data, rate limits, strong authorisation, audit logging.</p>
+
+<h3 id="weeks-2-to-4-build">Weeks 2 to 4: Build</h3>
+<p>A new microservice, <strong>bnpl-service</strong>, is created from the golden template in acme-retail-apps. The pipeline is inherited from the central reusable workflow, so scanning is on from commit one. Developers use VS Code and PyCharm with security plug-ins. Every PR passes secret scan, CodeQL, dependency review and unit tests. A vulnerable JSON library is caught in week 2 and upgraded in minutes, because it was caught at the PR, not at launch.</p>
+<p>Meanwhile the <strong>platform team</strong> uses Terraform in acme-platform to create the new database and a private service-to-service route. IaC scanning blocks a draft that exposed the database port too widely.</p>
+
+</section>
+<section class="card" data-i="52" data-part="part-20-case-study-acme-retail-ships-a-black-friday-feature" data-plabel="Part 20. Case Study: Acme Retail Ships a Black Friday Feature" data-title="Week 5: Testing in QA">
+<h3 id="week-5-testing-in-qa">Week 5: Testing in QA</h3>
+<p>The image, built once, is deployed to the QA cluster. Testers run functional tests. A <strong>DAST scan</strong> hits the API and finds that one endpoint returns detailed error traces. It is fixed. <strong>Performance tests</strong> simulate Black Friday traffic. An independent <strong>penetration test</strong> on the staging environment finds an authorisation gap that lets one user view another user's instalment plan. This is the exact broken-access-control issue from Part 12, now fixed before release.</p>
+
+<h3 id="week-6-release-readiness">Week 6: Release readiness</h3>
+<p>A checklist is reviewed: threat model done, critical findings closed, secrets in Secret Manager, signed image, SBOM stored, runbook written, monitoring dashboards and alerts ready, rollback tested, privacy review complete, change ticket approved. WIZ is checked: no open critical issue on the new project, no public exposure.</p>
+
+<h3 id="week-7-production-rollout">Week 7: Production rollout</h3>
+<p>In the approved change window the release manager approves. The cluster admission controller verifies the image signature. A <strong>canary</strong> sends 1 percent of traffic, then 10, then 50. Dashboards show error rates and unusual authentication patterns. Feature flag keeps the lender integration switched off until the final hour.</p>
+
+</section>
+<section class="card" data-i="53" data-part="part-20-case-study-acme-retail-ships-a-black-friday-feature" data-plabel="Part 20. Case Study: Acme Retail Ships a Black Friday Feature" data-title="Week 8: Black Friday and after">
+<h3 id="week-8-black-friday-and-after">Week 8: Black Friday and after</h3>
+<p>The SOC watches for fraud and abuse patterns. Autoscaling absorbs the peak. A new library vulnerability is announced on the Tuesday after; the SBOM and WIZ show within an hour that bnpl-service is affected, the owning team gets a ticket, a patched image goes through the same pipeline and reaches prod within the SLA. A short retrospective captures what worked and what to improve.</p>
+<p><strong>What this proves:</strong> security was never a single gate at the end. It was present in design, code, infrastructure, test, release and operations. That is what DevSecOps means in a real organisation.</p>
+
+
+</section>
+<section class="card" data-i="54" data-part="part-21-governance-people-and-how-security-really-gets-done" data-plabel="Part 21. Governance, People and How Security Really Gets Done" data-title="Part 21. Governance, People and How Security Really Gets Done">
+<h2 id="part-21-governance-people-and-how-security-really-gets-done">Part 21. Governance, People and How Security Really Gets Done</h2>
+
+<h3 id="211-from-policy-to-pipeline">21.1 From policy to pipeline</h3>
+<p>Rules in a large company come in layers:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Meaning</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Policy</strong></td>
+<td>What must be true, and why</td>
+<td>All production code is scanned before release</td>
+</tr>
+<tr>
+<td><strong>Standard</strong></td>
+<td>The specific requirement</td>
+<td>Critical SAST findings block merge; secrets must live in the approved vault</td>
+</tr>
+<tr>
+<td><strong>Procedure</strong></td>
+<td>Step-by-step how</td>
+<td>How to request an exception, how to rotate a key</td>
+</tr>
+<tr>
+<td><strong>Guideline</strong></td>
+<td>Friendly advice</td>
+<td>How to write secure input validation in Java</td>
+</tr>
+<tr>
+<td><strong>Control in the pipeline</strong></td>
+<td>The automatic enforcement</td>
+<td>CodeQL job with a failing check</td>
+</tr>
+</tbody>
+</table></div>
+<p>A policy nobody can enforce is a poster. A policy turned into <strong>automation</strong> is real security. This conversion, policy to pipeline, is much of the DevSecOps engineer's craft.</p>
+
+<h3 id="212-frameworks-and-audits-you-will-hear-about">21.2 Frameworks and audits you will hear about</h3>
+<ul>
+<li><strong>OWASP Top 10, ASVS and SAMM:</strong> application-security risks, verification requirements and maturity model.</li>
+<li><strong>NIST Cybersecurity Framework and NIST SSDF:</strong> general security and secure software development guidance.</li>
+<li><strong>ISO 27001, SOC 2:</strong> organisation-wide security management and assurance reports customers ask for.</li>
+<li><strong>PCI DSS:</strong> required if you handle payment card data.</li>
+<li><strong>CIS Benchmarks:</strong> concrete hardening settings for clouds, Kubernetes and operating systems.</li>
+<li><strong>DPDP Act (India), GDPR (EU):</strong> privacy laws about personal data.</li>
+</ul>
+<p>Auditors ask for <strong>evidence</strong>: logs, tickets, screenshots, configuration exports. A pipeline that automatically stores scan results and approvals produces audit evidence as a by-product.</p>
+
+</section>
+<section class="card" data-i="55" data-part="part-21-governance-people-and-how-security-really-gets-done" data-plabel="Part 21. Governance, People and How Security Really Gets Done" data-title="21.3 A day in the life of each role">
+<h3 id="213-a-day-in-the-life-of-each-role">21.3 A day in the life of each role</h3>
+<p><strong>Developer (Ravi):</strong> pulls the latest code in VS Code, builds a feature, sees SonarLint hints, opens a PR, fixes a dependency alert, responds to review comments, watches the QA deployment. Security is a part of the normal flow when it is fast and clear.</p>
+<p><strong>DevOps or platform engineer:</strong> maintains reusable workflows, upgrades the Kubernetes clusters, rotates runner images, fixes a failing pipeline for three teams, reviews a Terraform change.</p>
+<p><strong>AppSec analyst:</strong> tunes CodeQL and WIZ Code rules to cut false positives, reviews a risky design, runs a secure-coding session, triages a high-severity finding with a developer, updates the exception register, reports weekly metrics.</p>
+<p><strong>Cloud security engineer:</strong> reviews WIZ Issues by attack path, hardens organisation policies, investigates an overly broad role, checks new accounts were created with the landing zone guardrails.</p>
+<p><strong>SOC analyst:</strong> watches alerts, investigates a suspicious sign-in, pivots through audit logs, escalates to incident response.</p>
+<p><strong>Release manager:</strong> checks the readiness list, confirms the approvals, runs the change window.</p>
+
+</section>
+<section class="card" data-i="56" data-part="part-21-governance-people-and-how-security-really-gets-done" data-plabel="Part 21. Governance, People and How Security Really Gets Done" data-title="21.4 Working with developers: the human side">
+<h3 id="214-working-with-developers-the-human-side">21.4 Working with developers: the human side</h3>
+<p>Tools do not secure a company by themselves. People do. Habits of effective security teams:</p>
+<ul>
+<li><strong>Make the secure way the easy way:</strong> golden templates, one-line pipeline calls, auto-fix PRs.</li>
+<li><strong>Explain, do not just reject:</strong> a failing check should say what is wrong, why it matters, and how to fix it.</li>
+<li><strong>Respect delivery pressure:</strong> offer a safe fast path and a clear exception route, not a wall.</li>
+<li><strong>Measure and share progress:</strong> friendly dashboards by team, with wins celebrated.</li>
+<li><strong>Train in context:</strong> short sessions using the team's own code and real findings.</li>
+<li><strong>Blameless culture:</strong> mistakes are system failures to fix, so people report problems early.</li>
+</ul>
+
+
+</section>
+<section class="card" data-i="57" data-part="part-22-advanced-labs-and-learning-roadmap" data-plabel="Part 22. Advanced Labs and Learning Roadmap" data-title="Part 22. Advanced Labs and Learning Roadmap">
+<h2 id="part-22-advanced-labs-and-learning-roadmap">Part 22. Advanced Labs and Learning Roadmap</h2>
+
+<h3 id="lab-2-two-cluster-promotion-with-gitops">Lab 2: Two-cluster promotion with GitOps</h3>
+<p>Create two local clusters (or two namespaces) named qa and prod. Install Argo CD. Put your manifests in a config repo. Make the pipeline update the image <strong>digest</strong> in the config repo through a PR; let Argo CD apply it. Add a required reviewer for the prod folder. Try changing something in prod by hand and watch the drift correction.</p>
+
+<h3 id="lab-3-admission-policies">Lab 3: Admission policies</h3>
+<p>Write Kyverno policies that reject: images not from your registry, containers running as root, pods without resource limits, and images without a valid signature. Deploy deliberately bad manifests and read the rejection messages. Then fix the manifests until they pass.</p>
+
+<h3 id="lab-4-supply-chain-hardening">Lab 4: Supply-chain hardening</h3>
+<p>Generate an SBOM in the pipeline, sign the image with cosign, attach provenance, and verify the signature at deploy time. Pin all actions by SHA. Switch cloud authentication to OIDC and delete any stored keys.</p>
+
+</section>
+<section class="card" data-i="58" data-part="part-22-advanced-labs-and-learning-roadmap" data-plabel="Part 22. Advanced Labs and Learning Roadmap" data-title="Lab 5: Incident drill">
+<h3 id="lab-5-incident-drill">Lab 5: Incident drill</h3>
+<p>Plant a fake key in a sandbox repo, let your secret scanner find it, and run the response from Part 19: revoke, check logs, rotate, write a one-page post-mortem. Time yourself.</p>
+
+<h3 id="lab-6-prioritise-like-a-pro">Lab 6: Prioritise like a pro</h3>
+<p>Take a list of 20 sample findings (mix of critical and medium, internet-facing and internal, with and without sensitive data). Rank them using the questions in Part 17.3 and justify the top five. Compare with a friend or colleague and discuss differences.</p>
+
+<h3 id="capstone-project">Capstone project</h3>
+<p>Build a small three-service application (frontend, order API, database) with three environments, a reusable pipeline, scanning at every stage, signed images, GitOps deployment, policy enforcement, a documented exception process, a dashboard of metrics and an incident runbook. Present it as if briefing a new colleague. <strong>If you can explain it in plain language, you have understood it.</strong></p>
+
+<h3 id="suggested-study-order">Suggested study order</h3>
+<ol>
+<li>Linux, networking basics (IP, DNS, HTTP, TLS), Git.</li>
+<li>Docker and containers.</li>
+<li>CI/CD with GitHub Actions.</li>
+<li>Kubernetes basics, then Kubernetes security.</li>
+<li>One cloud deeply (start with GCP or AWS), then translate to the others.</li>
+<li>Application security: OWASP Top 10, threat modelling.</li>
+<li>Supply-chain security, IaC security, policy as code.</li>
+<li>Cloud security posture and attack-path thinking with tools like WIZ.</li>
+<li>Incident response and communication skills.</li>
+</ol>
+<p>Useful structured credentials when you want proof of learning include Certified Kubernetes Security Specialist (CKS), Google Professional Cloud Security Engineer, and AWS Certified Security Specialty. They help, but a working lab you can demonstrate is worth more than any badge.</p>
+
+
+</section>
+<section class="card" data-i="59" data-part="part-23-advanced-self-check" data-plabel="Part 23. Advanced Self-Check" data-title="Part 23. Advanced Self-Check">
+<h2 id="part-23-advanced-self-check">Part 23. Advanced Self-Check</h2>
+<ol>
+<li>Trace a Buy Now click through every hop in Part 12.1 and name one security control at each hop.</li>
+<li>Why are Dev and Prod placed in different cloud accounts or projects, and what does that limit?</li>
+<li>Explain the difference between a preventive control and a detective control with two examples of each.</li>
+<li>Why is referencing an image by digest safer than by the latest tag?</li>
+<li>A WIZ Issue shows a public VM with a critical CVE and an admin role. List your first five actions in order.</li>
+<li>What is the benefit of reusable workflows for a tiny AppSec team?</li>
+<li>Why should a self-hosted runner be ephemeral, and what must never run on it?</li>
+<li>A critical CVE appears in a library used by 400 repos. How do you find them, rank them, and track the fixes?</li>
+<li>Describe what a good risk exception contains.</li>
+<li>In the Black Friday case study, name three security activities that happened <em>before</em> a single line of code reached production.</li>
+<li>What is the difference between a WIZ finding and a WIZ Issue?</li>
+<li>Explain GitOps and its security benefit to a non-technical manager using an analogy.</li>
+</ol>
+
+
+</section>
+<section class="card" data-i="60" data-part="extended-glossary" data-plabel="Extended Glossary" data-title="Extended Glossary">
+<h2 id="extended-glossary">Extended Glossary</h2>
+<ul>
+<li><strong>Admission controller:</strong> the gatekeeper that checks every new object entering a Kubernetes cluster.</li>
+<li><strong>Attack path:</strong> a chain of weaknesses that together lead an attacker to something valuable.</li>
+<li><strong>Break-glass account:</strong> emergency access, heavily watched, used only when normal paths fail.</li>
+<li><strong>Canary release:</strong> sending a small share of traffic to the new version first.</li>
+<li><strong>CIEM:</strong> cloud infrastructure entitlement management, the study of who can do what in the cloud.</li>
+<li><strong>CSPM:</strong> cloud security posture management, spotting risky cloud settings.</li>
+<li><strong>CVE / CVSS / EPSS / KEV:</strong> the ID of a known flaw / its general severity score / probability it will be exploited / list of flaws known to be exploited.</li>
+<li><strong>Digest:</strong> an unchangeable fingerprint of a container image.</li>
+<li><strong>Drift:</strong> when real infrastructure differs from what the code says it should be.</li>
+<li><strong>Egress:</strong> traffic leaving a network.</li>
+<li><strong>GitOps:</strong> operating infrastructure by changing Git and letting automation apply it.</li>
+<li><strong>IDOR:</strong> insecure direct object reference, such as changing an order number in a URL to see someone else's order.</li>
+<li><strong>Landing zone:</strong> the pre-configured, guarded starting point for new cloud accounts.</li>
+<li><strong>mTLS:</strong> both sides of a connection prove their identity and encrypt traffic.</li>
+<li><strong>Provenance:</strong> a record of how and where software was built.</li>
+<li><strong>SCP / Organization Policy:</strong> rules set above accounts or projects that limit what anyone inside can do.</li>
+<li><strong>SIEM:</strong> the central system that collects and analyses security logs.</li>
+<li><strong>SLSA:</strong> a framework of levels for build and supply-chain integrity.</li>
+<li><strong>Toil:</strong> repetitive manual work that automation should replace.</li>
+<li><strong>Typosquatting:</strong> publishing a malicious package with a name almost identical to a popular one.</li>
+</ul>
+
+<p><em>End of the DevSecOps Enterprise Academy. When you are ready, I can turn any part into an interactive quiz, a Confluence-ready Word version, or a workshop deck.</em></p>
+</section>
+  </div>
+  <footer class="foot">
+    <button class="btn prev" id="prev" type="button">Back</button>
+    <div class="count" id="count" aria-live="polite"></div>
+    <button class="btn next" id="next" type="button">Next</button>
+  </footer>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Contents" hidden>
+  <button class="close" id="closebtn" type="button">Close</button>
+  <h2>Contents</h2>
+  <p class="prog"><span id="progtext">0 of 0 parts read</span><span class="bar"><i id="progbar"></i></span></p>
+  <nav>
+<p class="grp">Start</p>
+<div class="navrow plain" data-part="cover"><a href="#c0">Welcome</a></div>
+<p class="grp">Foundations</p>
+<label class="navrow" data-part="part-1-the-big-picture-a-company-is-a-city"><input type="checkbox" data-read="part-1-the-big-picture-a-company-is-a-city" aria-label="Mark Part 1. The Big Picture: A Company Is a City as read"><a href="#" data-pid="part-1-the-big-picture-a-company-is-a-city">Part 1. The Big Picture: A Company Is a City</a></label>
+<label class="navrow" data-part="part-2-the-four-layers-deeper"><input type="checkbox" data-read="part-2-the-four-layers-deeper" aria-label="Mark Part 2. The Four Layers, Deeper as read"><a href="#" data-pid="part-2-the-four-layers-deeper">Part 2. The Four Layers, Deeper</a></label>
+<label class="navrow" data-part="part-3-how-a-very-large-organisation-really-looks"><input type="checkbox" data-read="part-3-how-a-very-large-organisation-really-looks" aria-label="Mark Part 3. How a Very Large Organisation Really Looks as read"><a href="#" data-pid="part-3-how-a-very-large-organisation-really-looks">Part 3. How a Very Large Organisation Really Looks</a></label>
+<label class="navrow" data-part="part-4-where-every-tool-sits-the-placement-map"><input type="checkbox" data-read="part-4-where-every-tool-sits-the-placement-map" aria-label="Mark Part 4. Where Every Tool Sits (The Placement Map) as read"><a href="#" data-pid="part-4-where-every-tool-sits-the-placement-map">Part 4. Where Every Tool Sits (The Placement Map)</a></label>
+<label class="navrow" data-part="part-5-the-life-of-one-code-change"><input type="checkbox" data-read="part-5-the-life-of-one-code-change" aria-label="Mark Part 5. The Life of One Code Change as read"><a href="#" data-pid="part-5-the-life-of-one-code-change">Part 5. The Life of One Code Change</a></label>
+<label class="navrow" data-part="part-6-the-devsecops-pipeline-and-its-security-gates"><input type="checkbox" data-read="part-6-the-devsecops-pipeline-and-its-security-gates" aria-label="Mark Part 6. The DevSecOps Pipeline and Its Security Gates as read"><a href="#" data-pid="part-6-the-devsecops-pipeline-and-its-security-gates">Part 6. The DevSecOps Pipeline and Its Security Gates</a></label>
+<label class="navrow" data-part="part-7-hands-on-lab-build-your-own-secure-automated-deployment-workflow"><input type="checkbox" data-read="part-7-hands-on-lab-build-your-own-secure-automated-deployment-workflow" aria-label="Mark Part 7. Hands-On Lab: Build Your Own Secure Automated Deployment Workflow as read"><a href="#" data-pid="part-7-hands-on-lab-build-your-own-secure-automated-deployment-workflow">Part 7. Hands-On Lab: Build Your Own Secure Automated Deployment Workflow</a></label>
+<label class="navrow" data-part="part-8-real-scenarios-how-it-feels-on-the-job"><input type="checkbox" data-read="part-8-real-scenarios-how-it-feels-on-the-job" aria-label="Mark Part 8. Real Scenarios: How It Feels on the Job as read"><a href="#" data-pid="part-8-real-scenarios-how-it-feels-on-the-job">Part 8. Real Scenarios: How It Feels on the Job</a></label>
+<label class="navrow" data-part="part-9-who-does-what"><input type="checkbox" data-read="part-9-who-does-what" aria-label="Mark Part 9. Who Does What? as read"><a href="#" data-pid="part-9-who-does-what">Part 9. Who Does What?</a></label>
+<label class="navrow" data-part="part-10-common-beginner-mistakes"><input type="checkbox" data-read="part-10-common-beginner-mistakes" aria-label="Mark Part 10. Common Beginner Mistakes as read"><a href="#" data-pid="part-10-common-beginner-mistakes">Part 10. Common Beginner Mistakes</a></label>
+<label class="navrow" data-part="part-11-self-check-questions"><input type="checkbox" data-read="part-11-self-check-questions" aria-label="Mark Part 11. Self-Check Questions as read"><a href="#" data-pid="part-11-self-check-questions">Part 11. Self-Check Questions</a></label>
+<div class="navrow plain" data-part="glossary"><a href="#" data-pid="glossary">Glossary</a></div>
+<div class="navrow plain" data-part="where-to-go-next"><a href="#" data-pid="where-to-go-next">Where to Go Next</a></div>
+<p class="grp">Deep dives</p>
+<label class="navrow" data-part="part-12-inside-a-real-production-system"><input type="checkbox" data-read="part-12-inside-a-real-production-system" aria-label="Mark Part 12. Inside a Real Production System as read"><a href="#" data-pid="part-12-inside-a-real-production-system">Part 12. Inside a Real Production System</a></label>
+<label class="navrow" data-part="part-13-how-cloud-accounts-are-organised-in-real-life"><input type="checkbox" data-read="part-13-how-cloud-accounts-are-organised-in-real-life" aria-label="Mark Part 13. How Cloud Accounts Are Organised in Real Life as read"><a href="#" data-pid="part-13-how-cloud-accounts-are-organised-in-real-life">Part 13. How Cloud Accounts Are Organised in Real Life</a></label>
+<label class="navrow" data-part="part-14-github-at-enterprise-scale"><input type="checkbox" data-read="part-14-github-at-enterprise-scale" aria-label="Mark Part 14. GitHub at Enterprise Scale as read"><a href="#" data-pid="part-14-github-at-enterprise-scale">Part 14. GitHub at Enterprise Scale</a></label>
+<label class="navrow" data-part="part-15-kubernetes-in-real-life"><input type="checkbox" data-read="part-15-kubernetes-in-real-life" aria-label="Mark Part 15. Kubernetes in Real Life as read"><a href="#" data-pid="part-15-kubernetes-in-real-life">Part 15. Kubernetes in Real Life</a></label>
+<label class="navrow" data-part="part-16-pipeline-engineering-in-depth"><input type="checkbox" data-read="part-16-pipeline-engineering-in-depth" aria-label="Mark Part 16. Pipeline Engineering in Depth as read"><a href="#" data-pid="part-16-pipeline-engineering-in-depth">Part 16. Pipeline Engineering in Depth</a></label>
+<label class="navrow" data-part="part-17-scanners-in-depth-and-wiz-day-to-day"><input type="checkbox" data-read="part-17-scanners-in-depth-and-wiz-day-to-day" aria-label="Mark Part 17. Scanners in Depth and WIZ Day to Day as read"><a href="#" data-pid="part-17-scanners-in-depth-and-wiz-day-to-day">Part 17. Scanners in Depth and WIZ Day to Day</a></label>
+<label class="navrow" data-part="part-18-vulnerability-management-from-finding-to-fixed"><input type="checkbox" data-read="part-18-vulnerability-management-from-finding-to-fixed" aria-label="Mark Part 18. Vulnerability Management: From Finding to Fixed as read"><a href="#" data-pid="part-18-vulnerability-management-from-finding-to-fixed">Part 18. Vulnerability Management: From Finding to Fixed</a></label>
+<label class="navrow" data-part="part-19-when-things-go-wrong-an-incident-minute-by-minute"><input type="checkbox" data-read="part-19-when-things-go-wrong-an-incident-minute-by-minute" aria-label="Mark Part 19. When Things Go Wrong: An Incident, Minute by Minute as read"><a href="#" data-pid="part-19-when-things-go-wrong-an-incident-minute-by-minute">Part 19. When Things Go Wrong: An Incident, Minute by Minute</a></label>
+<label class="navrow" data-part="part-20-case-study-acme-retail-ships-a-black-friday-feature"><input type="checkbox" data-read="part-20-case-study-acme-retail-ships-a-black-friday-feature" aria-label="Mark Part 20. Case Study: Acme Retail Ships a Black Friday Feature as read"><a href="#" data-pid="part-20-case-study-acme-retail-ships-a-black-friday-feature">Part 20. Case Study: Acme Retail Ships a Black Friday Feature</a></label>
+<label class="navrow" data-part="part-21-governance-people-and-how-security-really-gets-done"><input type="checkbox" data-read="part-21-governance-people-and-how-security-really-gets-done" aria-label="Mark Part 21. Governance, People and How Security Really Gets Done as read"><a href="#" data-pid="part-21-governance-people-and-how-security-really-gets-done">Part 21. Governance, People and How Security Really Gets Done</a></label>
+<label class="navrow" data-part="part-22-advanced-labs-and-learning-roadmap"><input type="checkbox" data-read="part-22-advanced-labs-and-learning-roadmap" aria-label="Mark Part 22. Advanced Labs and Learning Roadmap as read"><a href="#" data-pid="part-22-advanced-labs-and-learning-roadmap">Part 22. Advanced Labs and Learning Roadmap</a></label>
+<label class="navrow" data-part="part-23-advanced-self-check"><input type="checkbox" data-read="part-23-advanced-self-check" aria-label="Mark Part 23. Advanced Self-Check as read"><a href="#" data-pid="part-23-advanced-self-check">Part 23. Advanced Self-Check</a></label>
+<div class="navrow plain" data-part="extended-glossary"><a href="#" data-pid="extended-glossary">Extended Glossary</a></div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var KEY='devsecops-academy-cards';
+  var read={};
+  try{read=JSON.parse(localStorage.getItem(KEY+'-read')||'{}')||{};}catch(e){read={};}
+  function saveRead(){try{localStorage.setItem(KEY+'-read',JSON.stringify(read));}catch(e){}}
+
+  var cards=[].slice.call(document.querySelectorAll('.card'));
+  var stage=document.getElementById('stage');
+  var cur=-1;
+
+  var partFirst={}, partCards={};
+  cards.forEach(function(c,i){
+    var p=c.dataset.part;
+    if(!(p in partFirst)){partFirst[p]=i;partCards[p]=[];}
+    partCards[p].push(i);
+  });
+
+  /* drawer */
+  var drawer=document.getElementById('drawer'), scrim=document.getElementById('scrim'),
+      menubtn=document.getElementById('menubtn'), closebtn=document.getElementById('closebtn');
+  function openDrawer(){drawer.hidden=false;requestAnimationFrame(function(){drawer.classList.add('on');});
+    scrim.classList.add('on');menubtn.setAttribute('aria-expanded','true');
+    var a=drawer.querySelector('.navrow.active a');if(a)a.scrollIntoView({block:'center'});}
+  function closeDrawer(){drawer.classList.remove('on');scrim.classList.remove('on');
+    menubtn.setAttribute('aria-expanded','false');setTimeout(function(){if(!drawer.classList.contains('on'))drawer.hidden=true;},200);}
+  menubtn.addEventListener('click',openDrawer);
+  closebtn.addEventListener('click',closeDrawer);
+  scrim.addEventListener('click',closeDrawer);
+
+  var boxes=[].slice.call(document.querySelectorAll('input[data-read]'));
+  function progress(){
+    var n=boxes.filter(function(b){return b.checked;}).length;
+    document.getElementById('progtext').textContent=n+' of '+boxes.length+' parts read';
+    document.getElementById('progbar').style.width=(boxes.length?100*n/boxes.length:0)+'%';
+  }
+  boxes.forEach(function(b){
+    b.checked=!!read[b.dataset.read];
+    b.addEventListener('change',function(){read[b.dataset.read]=b.checked;saveRead();progress();});
+  });
+  progress();
+
+  var rows={};
+  document.querySelectorAll('.navrow').forEach(function(r){rows[r.dataset.part]=r;});
+  document.querySelectorAll('.navrow a').forEach(function(a){
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      var pid=a.dataset.pid; var i=partFirst[pid];
+      if(i===undefined){i=0;}
+      closeDrawer();show(i);
+    });
+  });
+  var welcome=document.querySelector('.navrow[data-part="cover"] a');
+  if(welcome){welcome.addEventListener('click',function(e){e.preventDefault();closeDrawer();show(0);});}
+
+  /* copy buttons */
+  document.querySelectorAll('.card pre').forEach(function(pre){
+    var btn=document.createElement('button');btn.className='copy';btn.type='button';btn.textContent='Copy';
+    btn.addEventListener('click',function(){
+      var t=pre.querySelector('code').innerText;
+      var ok=function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy';},1500);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,function(){});}
+      else{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();
+        try{document.execCommand('copy');ok();}catch(e){}document.body.removeChild(ta);}
+    });
+    pre.appendChild(btn);
+  });
+
+  /* showing a card */
+  var prevBtn=document.getElementById('prev'), nextBtn=document.getElementById('next');
+  function show(i){
+    if(i<0||i>=cards.length)return;
+    if(cur>=0)cards[cur].classList.remove('on');
+    var oldRow=cur>=0?rows[cards[cur].dataset.part]:null;if(oldRow)oldRow.classList.remove('active');
+    cur=i;
+    var c=cards[i];c.classList.add('on');c.scrollTop=0;
+    var p=c.dataset.part, list=partCards[p], pos=list.indexOf(i)+1;
+    document.getElementById('wtitle').textContent=c.dataset.title;
+    document.getElementById('wpart').textContent=c.dataset.plabel;
+    document.getElementById('count').textContent=pos+' of '+list.length;
+    document.getElementById('total').textContent='Card '+(i+1)+' of '+cards.length;
+    document.getElementById('meter').style.width=(100*(i+1)/cards.length)+'%';
+    prevBtn.disabled=(i===0);
+    var last=(i===cards.length-1);
+    nextBtn.disabled=last;
+    var partEnd=!last&&cards[i+1].dataset.part!==p;
+    nextBtn.textContent=partEnd?'Next part':'Next';
+    prevBtn.textContent='Back';
+    var row=rows[p];if(row)row.classList.add('active');
+    try{localStorage.setItem(KEY+'-last',String(i));}catch(e){}
+    try{history.replaceState(null,'','#c'+i);}catch(e){}
+    document.title=c.dataset.title+' | DevSecOps Enterprise Academy';
+  }
+  function markRead(p){
+    var b=document.querySelector('input[data-read="'+p+'"]');
+    if(b&&!b.checked){b.checked=true;read[p]=true;saveRead();progress();}
+  }
+  function next(){
+    if(cur>=cards.length-1)return;
+    var p=cards[cur].dataset.part;
+    if(cards[cur+1].dataset.part!==p){markRead(p);}
+    show(cur+1);
+  }
+  function prev(){show(cur-1);}
+  nextBtn.addEventListener('click',next);
+  prevBtn.addEventListener('click',prev);
+
+  window.addEventListener('keydown',function(e){
+    var t=e.target&&e.target.tagName;
+    if(t==='INPUT'||t==='TEXTAREA'||e.metaKey||e.ctrlKey||e.altKey)return;
+    if(e.key==='Escape'){closeDrawer();return;}
+    if(drawer.classList.contains('on'))return;
+    if(e.key==='ArrowRight')next();
+    else if(e.key==='ArrowLeft')prev();
+  });
+
+  /* swipe on touch screens */
+  var sx=0,sy=0,tracking=false;
+  stage.addEventListener('touchstart',function(e){
+    if(e.touches.length!==1||e.target.closest('.tw,pre')){tracking=false;return;}
+    tracking=true;sx=e.touches[0].clientX;sy=e.touches[0].clientY;
+  },{passive:true});
+  stage.addEventListener('touchend',function(e){
+    if(!tracking)return;tracking=false;
+    var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6){if(dx<0)next();else prev();}
+  },{passive:true});
+
+  var start=0;
+  var h=location.hash.match(/^#c(\d+)$/);
+  if(h){start=parseInt(h[1],10);}
+  else{try{start=parseInt(localStorage.getItem(KEY+'-last')||'0',10)||0;}catch(e){}}
+  show(Math.min(Math.max(start,0),cards.length-1));
+})();
+</script>
+</body>
+</html>
